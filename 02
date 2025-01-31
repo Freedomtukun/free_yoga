@@ -1,0 +1,130 @@
+import cv2
+import mediapipe as mp
+import numpy as np
+import pyttsx3
+import json
+import time
+
+# 初始化 MediaPipe 姿势检测
+mp_pose = mp.solutions.pose
+pose = mp_pose.Pose()
+mp_drawing = mp.solutions.drawing_utils
+
+# 初始化语音引擎
+engine = pyttsx3.init()
+
+# 计算两个点的夹角（用于姿势评分）
+def calculate_angle(a, b, c):
+    a, b, c = np.array(a), np.array(b), np.array(c)
+    ba, bc = a - b, c - b
+    cosine_angle = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
+    angle = np.arccos(np.clip(cosine_angle, -1.0, 1.0))
+    return np.degrees(angle)
+
+# 语音提醒
+def speak(text):
+    engine.say(text)
+    engine.runAndWait()
+
+# 预设标准瑜伽姿势角度
+POSES = {
+    "warrior": {  # 战士式
+        "left_elbow": 160,
+        "right_elbow": 160,
+        "left_knee": 90,
+        "right_knee": 90
+    },
+    "tree": {  # 树式
+        "left_knee": 45,
+        "right_knee": 45
+    },
+    "downward_dog": {  # 下犬式
+        "left_elbow": 180,
+        "right_elbow": 180,
+        "left_knee": 180,
+        "right_knee": 180
+    }
+}
+
+# 读取摄像头
+cap_front = cv2.VideoCapture(0)  # 正面摄像头
+cap_side = cv2.VideoCapture(1) if cv2.VideoCapture(1).isOpened() else None  # 侧面摄像头（检查是否可用）
+
+# 录像功能
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+out = cv2.VideoWriter('yoga_practice.avi', fourcc, 20.0, (640, 480))
+
+while cap_front.isOpened():
+    ret, frame = cap_front.read()
+    if not ret:
+        break
+
+    # 转换为 RGB
+    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    results = pose.process(rgb_frame)
+
+    if results.pose_landmarks:
+        landmarks = results.pose_landmarks.landmark
+
+        # 获取关键点坐标
+        def get_landmark_point(landmark):
+            return [landmarks[landmark].x, landmarks[landmark].y]
+
+        shoulder_l, elbow_l, wrist_l = map(get_landmark_point, 
+                                           [mp_pose.PoseLandmark.LEFT_SHOULDER, mp_pose.PoseLandmark.LEFT_ELBOW, mp_pose.PoseLandmark.LEFT_WRIST])
+        shoulder_r, elbow_r, wrist_r = map(get_landmark_point, 
+                                           [mp_pose.PoseLandmark.RIGHT_SHOULDER, mp_pose.PoseLandmark.RIGHT_ELBOW, mp_pose.PoseLandmark.RIGHT_WRIST])
+        hip_l, knee_l, ankle_l = map(get_landmark_point, 
+                                     [mp_pose.PoseLandmark.LEFT_HIP, mp_pose.PoseLandmark.LEFT_KNEE, mp_pose.PoseLandmark.LEFT_ANKLE])
+        hip_r, knee_r, ankle_r = map(get_landmark_point, 
+                                     [mp_pose.PoseLandmark.RIGHT_HIP, mp_pose.PoseLandmark.RIGHT_KNEE, mp_pose.PoseLandmark.RIGHT_ANKLE])
+
+        # 计算角度
+        angles = {
+            "left_elbow": calculate_angle(shoulder_l, elbow_l, wrist_l),
+            "right_elbow": calculate_angle(shoulder_r, elbow_r, wrist_r),
+            "left_knee": calculate_angle(hip_l, knee_l, ankle_l),
+            "right_knee": calculate_angle(hip_r, knee_r, ankle_r)
+        }
+
+        # 计算最佳匹配姿势
+        best_pose, best_score = "Unknown", 0
+        for pose_name, angles_dict in POSES.items():
+            scores = [max(0, 100 - abs(standard_angle - angles[joint])) for joint, standard_angle in angles_dict.items() if joint in angles]
+            pose_score = int(np.mean(scores)) if scores else 0
+            if pose_score > best_score:
+                best_score, best_pose = pose_score, pose_name
+
+        # 语音提醒（实时）
+        if best_pose == "warrior":
+            if angles["left_knee"] < 85:
+                speak("左膝盖需要再弯曲一点")
+            if angles["right_knee"] < 85:
+                speak("右膝盖需要再弯曲一点")
+
+        # 显示得分 & 姿势
+        cv2.putText(frame, f"Pose: {best_pose} ({best_score}%)", (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
+        cv2.putText(frame, f"Score: {best_score}%", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+        # 绘制骨架
+        mp_drawing.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+
+    # 录制视频
+    out.write(frame)
+
+    # 显示视频
+    cv2.imshow('Yoga Pose Evaluation', frame)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+# 释放资源
+out.release()
+cap_front.release()
+cv2.destroyAllWindows()
+
+# 记录数据
+log_data = {"time": time.strftime("%Y-%m-%d %H:%M:%S"), "pose": best_pose, "score": best_score}
+with open("yoga_report.json", "a") as f:
+    json.dump(log_data, f)
+    f.write("\n")
