@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>摄像头测试页面</title>
+</head>
+<body>
+    <h1>摄像头测试页面</h1>
+    <!-- 用于显示摄像头视频 -->
+    <video id="video" width="320" height="240" autoplay 
+playsinline></video>
+    <br>
+    <!-- 拍照并检测按钮 -->
+    <button id="captureBtn">拍照并检测</button>
+    <!-- 显示后端返回的检测结果 -->
+    <div id="result"></div>
+    <script>
+        // 输出日志，确认代码执行
+        console.log("开始请求摄像头权限");
+
+        // 请求摄像头视频流
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                console.log("摄像头流已获取");
+                document.getElementById("video").srcObject = stream;
+            })
+            .catch(err => {
+                console.error("无法访问摄像头:", err);
+            });
+
+        // 创建一个 canvas 用于捕获视频帧
+        const canvas = document.createElement('canvas');
+        canvas.width = 320;
+        canvas.height = 240;
+        const context = canvas.getContext('2d');
+
+        // 为“拍照并检测”按钮添加点击事件监听
+        document.getElementById("captureBtn").addEventListener('click',()=> {
+            console.log("拍照按钮点击，开始捕获视频帧");
+            context.drawImage(document.getElementById("video"), 0, 0, 
+canvas.width, canvas.height);
+            canvas.toBlob(blob => {
+                if (!blob) {
+                    console.error("转换为 Blob 失败");
+                    return;
+                }
+                console.log("转换成功，Blob 大小：", blob.size, "字节");
+                const formData = new FormData();
+                formData.append('image', blob, 'capture.jpg');
+
+                // 这里设置后端 API 的地址，示例使用本地地址
+                fetch('http://127.0.0.1:5000/detect_pose', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    console.log("收到响应，状态码：", response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("检测结果:", data);
+                    document.getElementById("result").innerHTML = `
+                        <p>体式: ${data.pose}</p>
+                        <p>得分: ${data.score}</p>
+                        <p>时间: ${data.timestamp}</p>
+                    `;
+                })
+                .catch(error => {
+                    console.error("请求出错:", error);
+                });
+            }, 'image/jpeg');
+        });
+    </script>
+</body>
+</html>
+
