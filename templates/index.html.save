@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>智能瑜伽实时系统</title>
+  <script 
+src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script 
+src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
+  <script 
+src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <script 
+src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
+  <style>
+    .container { position: relative; width: 640px; height: 480px; }
+    #video, #output { position: absolute; top: 0; left: 0; }
+  </style>
+</head>
+<body>
+  <h1>智能瑜伽实时系统</h1>
+  <div class="container">
+    <video id="video" width="640" height="480" autoplay 
+playsinline></video>
+    <canvas id="output" width="640" height="480"></canvas>
+  </div>
+  <button id="captureBtn">拍照分析</button>
+  <div id="result"></div>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('output');
+    const ctx = canvas.getContext('2d');
+    const captureBtn = document.getElementById('captureBtn');
+    const resultDiv = document.getElementById('result');
+    let lastLandmarks = null;
+
+    // 1. MediaPipe初始化
+    const pose = new Pose({
+      locateFile: (file) => 
+`https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+    });
+
+    pose.setOptions({
+      modelComplexity: 1,
+      smoothLandmarks: true,
+      minDetectionConfidence: 0.7
+    });
+
+    // 2. 骨骼绘制与数据保留
+    pose.onResults((results) => {
+      ctx.save();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+      
+      if (results.poseLandmarks) {
+        lastLandmarks = results.poseLandmarks; // 保存最新关键点
+        drawConnectors(ctx, results.poseLandmarks, POSE_CONNECTIONS, 
+          {color: '#00FF00', lineWidth: 3});
+      }
+      ctx.restore();
+    });
+
+    // 3. 摄像头控制
+    const camera = new Camera(video, {
+      onFrame: async () => await pose.send({image: video}),
+      width: 640,
+      height: 480
+    });
+    camera.start();
+
+    // 4. 增强版拍照功能
+    captureBtn.addEventListener('click', () => {
+      if (!lastLandmarks) {
+        speak("未检测到人体姿势");
+        return;
+      }
+
+      // 角度计算示例
+      const angles = calculateArmAngles(lastLandmarks);
+      const score = evaluatePosture(angles);
+      
+      resultDiv.innerHTML = `
+        <strong>实时分析结果：</strong><br>
+        左臂角度: ${angles.left.toFixed(1)}°<br>
+        右臂角度: ${angles.right.toFixed(1)}°<br>
+        姿势评分: ${score}/100
+      `;
+      speak(`当前评分 ${score}`);
+    });
+
+    // 5. 关键算法实现
+    function calculateArmAngles(landmarks) {
+      // 左臂关键点索引（根据MediaPipe文档）
+      const leftShoulder = landmarks[11];
+      const leftElbow = landmarks[13];
+      const leftWrist = landmarks[15];
+      
+      // 右臂关键点索引
+      const rightShoulder = landmarks[12];
+      const rightElbow = landmarks[14];
+      const rightWrist = landmarks[16];
+
+      return {
+        left: calculateAngle(leftShoulder, leftElbow, leftWrist),
+        right: calculateAngle(rightShoulder, rightElbow, rightWrist)
+      };
+    }
+
+    function calculateAngle(a, b, c) {
+      const radians = Math.atan2(c.y - b.y, c.x - b.x) - 
+                     Math.atan2(a.y - b.y, a.x - b.x);
+      return Math.abs(radians * 180 / Math.PI);
+    }
+
+    function evaluatePosture(angles) {
+      // 示例评分逻辑：理想角度为90°
+      const idealAngle = 90;
+      const deviation = Math.abs(angles.

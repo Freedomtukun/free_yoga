@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>智能瑜伽实时系统</title>
+  <script 
+src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script 
+src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
+  <script 
+src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <script 
+src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
+  <style>
+    .container { position: relative; width: 640px; height: 480px; }
+    #video, #output { position: absolute; top: 0; left: 0; }
+  </style>
+</head>
+<body>
+  <h1>智能瑜伽实时系统</h1>
+  <div class="container">
+    <video id="video" width="640" height="480" autoplay 
+playsinline></video>
+    <canvas id="output" width="640" height="480"></canvas>
+  </div>
+  <button id="captureBtn">拍照分析</button>
+  <button id="switchCamBtn">切换摄像头</button> <!-- 新增按钮 -->
+  <div id="result"></div>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('output');
+    const ctx = canvas.getContext('2d');
+    const captureBtn = document.getElementById('captureBtn');
+    const switchCamBtn = document.getElementById('switchCamBtn');
+    const resultDiv = document.getElementById('result');
+
+    let lastLandmarks = null;
+    let camera = null;
+    let currentMode = 'user'; // 初始使用前置
+
+    // 1. MediaPipe初始化
+    const pose = new Pose({
+      locateFile: (file) => 
+`https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+    });
+
+    pose.setOptions({
+      modelComplexity: 1,
+      smoothLandmarks: true,
+      minDetectionConfidence: 0.7
+    });
+
+    // 2. 骨骼绘制与数据保留
+    pose.onResults((results) => {
+      ctx.save();    
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+
+      if (results.poseLandmarks) {
+        lastLandmarks = results.poseLandmarks;
+        drawConnectors(ctx, results.poseLandmarks, POSE_CONNECTIONS,
+          {color: '#00FF00', lineWidth: 3});
+      }
+      ctx.restore();
+    });
+
+    // 初始化camera函数，可重用
+    function startCamera(facingMode) {
+      if (camera) {
+        camera.stop();
+        camera = null;
+      }
+      camera = new Camera(video, {
+        onFrame: async () => {
+          await pose.send({image: video});
+        },
+        width: 640,
+        height: 480,
+        facingMode: facingMode // 'user' or 'environment'
+      });
+      camera.start();
+    }
+
+    // 页面加载时，先启动前置
+    startCamera('user');
+
+    // 4. 拍照按钮
+    captureBtn.addEventListener('click', () => {
+      if (!lastLandmarks) {
+        speak("未检测到人体姿势");
+        return;
+      }
+      const angles = calculateArmAngles(lastLandmarks);
+      const score = evaluatePosture(angles);
+
+      resultDiv.innerHTML = `
+        <strong>实时分析结果：</strong><br>
+        左臂角度: ${angles.left.toFixed(1)}°<br>
+        右臂角度: ${angles.right.toFixed(1)}°<br>
+        姿势评分: ${score}/100
+      `;
+      speak(`当前评分 ${score}`);
+    });
+
+    // 5. 切换摄像头按钮
+    switchCamBtn.addEventListener('click', () => {
+      currentMode = (currentMode === 'user') ? 'environment' : 'user';
+      startCamera(currentMode);
+    });
+
+    // 6. 角度计算等逻辑
+    function calculateArmAngles(landmarks) {
+      const leftShoulder = landmarks[11];
+      const leftElbow = landmarks[13];
+      const leftWrist = landmarks[15];
+      const rightShoulder = landmarks[12];
+      const rightElbow = landmarks[14];
+      const rightWrist = landmarks[16];
+
+      return {
+        left: calculateAngle(leftShoulder, leftElbow, leftWrist),
+        right: calculateAngle(rightShoulder, rightElbow, rightWrist)
+      };
+    }
+
+    function calculateAngle(a, b, c) {
+      const radians = Math.atan2(c.y - b.y, c.x - b.x) -
+                      Math.atan2(a.y - b.y, a.x - b.x);
+      return Math.abs(radians * 180 / Math.PI);
+    }
+
+    function evaluatePosture(angles) {
+      const ideal = 90;
+      const dev = Math.abs(angles.left - ideal) + Math.abs(angles.right - 
+ideal);
+      return Math.max(0, 100 - dev * 2);
+    }
+
+    function speak(text) {
+      if (window.speechSynthesis) {
+        const utt = new SpeechSynthesisUtterance(text);
+        window.speechSynthesis.speak(utt);
+      }
+    }
+
+    // 7. 离开页面时释放资源
+    window.addEventListener('beforeunload', () => {
+      if (camera) camera.stop();
+      if (pose.close) pose.close();
+    });
+  </script>
+</body>
+</html>
+
