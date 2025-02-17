@@ -2,100 +2,250 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>智能瑜伽实时系统</title>
-  <script 
+  <title>智能瑜伽实时系统 (Auto-Detect)</title>
+  <!-- Mediapipe 依赖 -->
+   
 src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-  <script 
+   
 src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
-  <script 
+   
 src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-  <script 
+   
 src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
-  <style>
-    .container { position: relative; width: 640px; height: 480px; }
-    #video, #output { position: absolute; top: 0; left: 0; }
+
+  
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0; padding: 1em;
+    }
+    h1 {
+      text-align: center;
+    }
+    .container {
+      position: relative;
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
+      background: #fff;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    #video, #output {
+      position: absolute;
+      top: 0; left: 0;
+      width: 640px; height: 480px;
+    }
+    .btn-row {
+      text-align: center;
+      margin: 1em 0;
+    }
+    button {
+      margin: 0.5em;
+      padding: 0.5em 1em;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    #result, #tips {
+      background: #fff;
+      margin: 1em 0;
+      padding: 0.5em;
+      border-radius: 4px;
+    }
+    .correct {
+      color: green;
+    }
+    .incorrect {
+      color: red;
+    }
+    .pose-label {
+      font-size: 1.2rem;
+      margin-bottom: 0.5em;
+    }
   </style>
 </head>
 <body>
-  <h1>智能瑜伽实时系统</h1>
-  <div class="container">
-    <video id="video" width="640" height="480" autoplay 
-playsinline></video>
-    <canvas id="output" width="640" height="480"></canvas>
+  <h1>智能瑜伽实时系统（自动识别示例）</h1>
+
+  <!-- 容器：视频+骨骼绘制 -->
+  <div class="container" style="width:640px; height:480px;">
+    <video id="video" playsinline></video>
+    <canvas id="output"></canvas>
   </div>
-  <button id="captureBtn">拍照分析</button>
+
+  <!-- 按钮行 -->
+  <div class="btn-row">
+    <button id="switchCamBtn">切换摄像头</button>
+    <button id="analyzeBtn">手动分析</button>
+  </div>
+
+  <!-- 显示实时结果 -->
   <div id="result"></div>
+  <!-- 显示提示 -->
+  <div id="tips"></div>
 
   <script>
+    /****************************************************
+     * 0. 体式信息：四个体式 + 正确/错误描述
+     ****************************************************/
+    const yogaPoses = {
+      "半神猴式": {
+        correct: [
+          "躯干：后背延展往前，拉直脊柱",
+          "骨盆：骨盆往前转动，增强大腿后拉伸",
+          "腿：腿伸直，脚尖保持回勾有力"
+        ],
+        incorrect: [
+          "弓背：会减少腿的伸展，增加腰部压力",
+          "腿弯曲：会使拉伸部位偏移",
+          "耸肩：会丧失身体向前延展的拉伸"
+        ]
+      },
+      "坐角式": {
+        correct: [
+          "躯干：身体向上延展，随后慢慢往前往下",
+          "骨盆：骨盆转动，双腿固定不动",
+          "双腿：双腿伸直，脚尖回勾"
+        ],
+        incorrect: [
+          "后背弯曲：使腰部压力过大，腰突不适",
+          "双腿弯曲：导致骨盆转动幅度不够，拉伸位置偏移"
+        ]
+      },
+      "轮式": {
+        correct: [
+          "胸腔：胸腔延展打开，保持呼吸顺序",
+          "后背：后背发力，减少腰部压力",
+          "臀部：臀部放松，拉伸开腹股沟",
+          "腿：双腿往上往中间发力，稳定轮式根基"
+        ],
+        incorrect: [
+          "手臂弯曲：会增加肩膀收紧，导致肩关节不伸展",
+          "腋窝不张开：会增加腰椎压力",
+          "后背不发力：使更大压力放在关节，导致关节挤压"
+        ]
+      },
+      "树式": {
+        correct: [
+          "腿：主力腿伸直，膝关节保持弹性",
+          "上身：上身挺直平衡，微收腹，保持骨盆稳定",
+          "肩膀：肩膀下沉，手臂上举，伸展侧腰"
+        ],
+        incorrect: [
+          "腿过度弯曲：导致身体不平衡",
+          "身体侧倾：重心偏移，体式无法保持",
+          "耸肩：后背肌肉过紧，颈椎不适"
+        ]
+      }
+    };
+
+    /****************************************************
+     * 1. 初始化 Mediapipe Pose
+     ****************************************************/
     const video = document.getElementById('video');
     const canvas = document.getElementById('output');
     const ctx = canvas.getContext('2d');
-    const captureBtn = document.getElementById('captureBtn');
-    const resultDiv = document.getElementById('result');
+
+    let camera = null;
+    let currentMode = 'user'; // 初始使用前置摄像头
     let lastLandmarks = null;
 
-    // 1. MediaPipe初始化
     const pose = new Pose({
       locateFile: (file) => 
 `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
     });
-
     pose.setOptions({
       modelComplexity: 1,
       smoothLandmarks: true,
       minDetectionConfidence: 0.7
     });
 
-    // 2. 骨骼绘制与数据保留
+    // 每帧处理结果
     pose.onResults((results) => {
       ctx.save();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
-      
       if (results.poseLandmarks) {
-        lastLandmarks = results.poseLandmarks; // 保存最新关键点
-        drawConnectors(ctx, results.poseLandmarks, POSE_CONNECTIONS, 
-          {color: '#00FF00', lineWidth: 3});
+        lastLandmarks = results.poseLandmarks;
+        drawConnectors(ctx, results.poseLandmarks, POSE_CONNECTIONS,
+          { color: '#00FF00', lineWidth: 3 });
       }
       ctx.restore();
+
+      // 自动识别 & 更新UI
+      autoDetectPose();
     });
 
-    // 3. 摄像头控制
-    const camera = new Camera(video, {
-      onFrame: async () => await pose.send({image: video}),
-      width: 640,
-      height: 480
-    });
-    camera.start();
+    // 启动摄像头
+    function startCamera(facingMode) {
+      if (camera) {
+        camera.stop();
+        camera = null;
+      }
+      camera = new Camera(video, {
+        onFrame: async () => {
+          await pose.send({ image: video });
+        },
+        width: 640,
+        height: 480,
+        facingMode: facingMode // 'user' or 'environment'
+      });
+      camera.start();
+    }
 
-    // 4. 增强版拍照功能
-    captureBtn.addEventListener('click', () => {
+    // 页面加载启动
+    startCamera('user');
+
+    /****************************************************
+     * 2. 摄像头切换按钮
+     ****************************************************/
+    const switchCamBtn = document.getElementById('switchCamBtn');
+    switchCamBtn.addEventListener('click', () => {
+      currentMode = (currentMode === 'user') ? 'environment' : 'user';
+      startCamera(currentMode);
+    });
+
+    /****************************************************
+     * 3. 手动分析按钮 (可选)
+     ****************************************************/
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    analyzeBtn.addEventListener('click', () => {
+      manualAnalyze();
+    });
+
+    function manualAnalyze() {
       if (!lastLandmarks) {
         speak("未检测到人体姿势");
         return;
       }
-
-      // 角度计算示例
+      // 计算得分
       const angles = calculateArmAngles(lastLandmarks);
-      const score = evaluatePosture(angles);
-      
-      resultDiv.innerHTML = `
-        <strong>实时分析结果：</strong><br>
-        左臂角度: ${angles.left.toFixed(1)}°<br>
-        右臂角度: ${angles.right.toFixed(1)}°<br>
-        姿势评分: ${score}/100
-      `;
-      speak(`当前评分 ${score}`);
-    });
+      const poseName = classifyPose(lastLandmarks); // 识别体式
+      const score = evaluatePose(angles, poseName);
 
-    // 5. 关键算法实现
+      updateUI(poseName, score, angles);
+    }
+
+    /****************************************************
+     * 4. 自动识别(在 onResults中自动调用)
+     ****************************************************/
+    function autoDetectPose() {
+      if (!lastLandmarks) return;
+      // 计算并显示
+      const angles = calculateArmAngles(lastLandmarks);
+      const poseName = classifyPose(lastLandmarks);
+      const score = evaluatePose(angles, poseName);
+
+      updateUI(poseName, score, angles);
+    }
+
+    /****************************************************
+     * 5. 计算角度 & 识别体式 & 评分
+     ****************************************************/
+    // (A) 计算手臂角度(示例)
     function calculateArmAngles(landmarks) {
-      // 左臂关键点索引（根据MediaPipe文档）
       const leftShoulder = landmarks[11];
       const leftElbow = landmarks[13];
       const leftWrist = landmarks[15];
-      
-      // 右臂关键点索引
       const rightShoulder = landmarks[12];
       const rightElbow = landmarks[14];
       const rightWrist = landmarks[16];
@@ -106,13 +256,125 @@ playsinline></video>
       };
     }
 
+    // (B) 简化角度函数
     function calculateAngle(a, b, c) {
-      const radians = Math.atan2(c.y - b.y, c.x - b.x) - 
-                     Math.atan2(a.y - b.y, a.x - b.x);
+      const radians = Math.atan2(c.y - b.y, c.x - b.x) -
+                      Math.atan2(a.y - b.y, a.x - b.x);
       return Math.abs(radians * 180 / Math.PI);
     }
 
-    function evaluatePosture(angles) {
-      // 示例评分逻辑：理想角度为90°
-      const idealAngle = 90;
-      const deviation = Math.abs(angles.
+    // (C) 简单姿势分类(演示)
+    // 实际项目需更复杂逻辑或ML模型
+    function classifyPose(landmarks) {
+      // 这里只演示：根据 "腿" 是否伸直 / "背" 是否弯曲... 
+      // 我们只拿 "leftWrist" / "leftAnkle" 之类来做简单判断
+      // (下例是纯演示, 并不真实)
+      const leftHip = landmarks[23];
+      const rightHip = landmarks[24];
+      const leftKnee = landmarks[25];
+      const rightKnee = landmarks[26];
+      const leftAnkle = landmarks[27];
+      const rightAnkle = landmarks[28];
+
+      // 计算腿部角度
+      let leftLegAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
+      let rightLegAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
+
+      // 纯演示：看 leftLegAngle / rightLegAngle 大概判断
+      // 这个逻辑非常粗糙
+      if (leftLegAngle > 150 && rightLegAngle > 150) {
+        return "坐角式";  // 假设双腿伸直 => "坐角式"
+      } else if (leftLegAngle < 100 && rightLegAngle > 150) {
+        return "半神猴式";
+      } else if (leftLegAngle > 120 && rightLegAngle > 120) {
+        return "轮式";
+      } else {
+        return "树式";
+      }
+    }
+
+    // (D) 根据poseName & angles, 返回评分(示例)
+    function evaluatePose(angles, poseName) {
+      // 如果不区分体式，就简单看左右臂接近90度
+      // 真实项目可写更复杂逻辑
+      const ideal = 90;
+      let dev = Math.abs(angles.left - ideal) + Math.abs(angles.right - 
+ideal);
+      let baseScore = Math.max(0, 100 - dev * 2);
+
+      // 也可根据 poseName 做加权
+      if (poseName === "轮式") {
+        // 轮式更难, score衰减大些(示例)
+        baseScore -= 10;
+      }
+      return Math.max(0, baseScore);
+    }
+
+    /****************************************************
+     * 6. 更新UI(显示/播报)
+     ****************************************************/
+    function updateUI(poseName, score, angles) {
+      // 显示到 #result
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = `
+        <div 
+class="pose-label">检测到体式：<strong>${poseName}</strong></div>
+        <div>左臂角度: ${angles.left.toFixed(1)}°, 右臂角度: 
+${angles.right.toFixed(1)}°</div>
+        <div>评分: ${score.toFixed(1)}/100</div>
+      `;
+
+      // 判断是否正确
+      const threshold = 70;
+      let isCorrect = (score >= threshold);
+      showTips(poseName, isCorrect);
+
+      // 语音播报(可加状态判断防止频繁播报)
+      if (isCorrect) {
+        speak(`当前检测为${poseName}，姿势不错，分数${score.toFixed(1)}`);
+      } else {
+        speak(`这是${poseName}吗？分数${score.toFixed(1)}，请再努力调整`);
+      }
+    }
+
+    /****************************************************
+     * 7. 显示体式正确/错误提示
+     ****************************************************/
+    function showTips(poseName, isCorrect) {
+      const tipsDiv = document.getElementById('tips');
+      const poseData = yogaPoses[poseName];
+      if (!poseData) {
+        tipsDiv.innerHTML = `<p>暂未收录该体式：${poseName}</p>`;
+        return;
+      }
+
+      let arr = isCorrect ? poseData.correct : poseData.incorrect;
+      let html = `<h2>${poseName} - ${isCorrect ? "正确要点" : 
+"错误要点"}</h2><ul>`;
+      arr.forEach(item => {
+        html += `<li>${item}</li>`;
+      });
+      html += '</ul>';
+      tipsDiv.innerHTML = html;
+      tipsDiv.className = isCorrect ? 'correct' : 'incorrect';
+    }
+
+    /****************************************************
+     * 8. 语音函数
+     ****************************************************/
+    function speak(text) {
+      if (window.speechSynthesis) {
+        const utter = new SpeechSynthesisUtterance(text);
+        window.speechSynthesis.speak(utter);
+      }
+    }
+
+    // 离开页面时释放资源
+    window.addEventListener('beforeunload', () => {
+      if (camera) camera.stop();
+      if (pose.close) pose.close();
+    });
+  </script>
+</body>
+</html>
+

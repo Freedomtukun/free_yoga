@@ -1,146 +1,45 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, 
-maximum-scale=1.0, user-scalable=no">
-  <title>智能瑜伽教练系统</title>
-  <link rel="stylesheet" href="static/styles.css">
+  <title>智能瑜伽实时系统 (Auto-Detect)</title>
+  <!-- 引入外部CSS -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Mediapipe 依赖 -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
 </head>
 <body>
-  <!-- 语言切换栏 -->
-  <div class="lang-bar">
-    <button onclick="switchLanguage('en')">English</button>
-    <button onclick="switchLanguage('zh')">中文</button>
-  </div>
+  <header>
+    <h1>智能瑜伽实时系统（自动识别示例）</h1>
+  </header>
 
-  <!-- 主摄像头视图 -->
-  <div class="camera-container">
-    <video id="video" autoplay playsinline></video>
-    <canvas id="skeleton"></canvas>
-    <div class="hud-overlay">
-      <div id="pose-name">Tree Pose</div>
-      <div id="score">Score: 85/100</div>
+  <main>
+    <!-- 摄像头容器 -->
+    <div class="container">
+      <video id="video" playsinline></video>
+      <canvas id="output"></canvas>
     </div>
-  </div>
 
-  <!-- 控制面板 -->
-  <div class="control-panel">
-    <button id="analyze-btn" 
-onclick="captureAndAnalyze()">分析姿势</button>
-    <div id="angle-details"></div>
-  </div>
+    <!-- 按钮行 -->
+    <div class="btn-row">
+      <button id="switchCamBtn">切换摄像头</button>
+      <button id="analyzeBtn">手动分析</button>
+    </div>
 
-  <!-- 依赖库 -->
-  <script 
-src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  <script src="static/utils.js"></script>
-  <script src="config.json"></script>
-  
-  <!-- 动态加载MediaPipe -->
-  <script>
-    // ================== 初始化配置 ==================
-    const CONFIG = {
-      "env": "dev",  // dev/prod
-      "cdn_base": {
-        "dev": "https://cdn.jsdelivr.net/npm/@mediapipe/pose/",
-        "prod": "https://your-oss-endpoint.aliyuncs.com/mediapipe/"
-      },
-      "locales": {
-        "en": "locales/en.json",
-        "zh": "locales/zh.json"
-      }
-    };
+    <!-- 结果 & 提示 -->
+    <div id="result"></div>
+    <div id="tips"></div>
+  </main>
 
-    // ================== 核心系统 ==================
-    class YogaCoach {
-      constructor() {
-        this.poseDetector = null;
-        this.currentLanguage = 'zh';
-        this.poses = {};  // 加载的体式标准
-      }
+  <footer>
+    <p>© 2023 智能瑜伽</p>
+  </footer>
 
-      async init() {
-        await this.loadLocale();
-        await this.initMediaPipe();
-        this.startCamera();
-      }
-
-      // 加载多语言文件
-      async loadLocale() {
-        const resp = await fetch(CONFIG.locales[this.currentLanguage]);
-        this.localeText = await resp.json();
-        this.updateUIText();
-      }
-
-      // 初始化骨骼检测
-      async initMediaPipe() {
-        const poseScript = document.createElement('script');
-        poseScript.src = `${CONFIG.cdn_base[CONFIG.env]}/pose.js`;
-        document.head.appendChild(poseScript);
-
-        await new Promise(resolve => poseScript.onload = resolve);
-
-        this.poseDetector = new Pose({
-          locateFile: (file) => `${CONFIG.cdn_base[CONFIG.env]}/${file}`
-        });
-
-        this.poseDetector.setOptions({
-          modelComplexity: 1,
-          smoothLandmarks: true,
-          minDetectionConfidence: 0.7
-        });
-
-        this.poseDetector.onResults(this.processPose.bind(this));
-      }
-
-      // 处理检测结果
-      processPose(results) {
-        const canvas = document.getElementById('skeleton');
-        const ctx = canvas.getContext('2d');
-        
-        // 绘制骨骼
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        if (results.poseLandmarks) {
-          drawConnectors(ctx, results.poseLandmarks, POSE_CONNECTIONS, {
-            color: '#00FF00',
-            lineWidth: 2
-          });
-          this.detectPose(results.poseLandmarks);
-        }
-      }
-
-      // 体式识别逻辑
-      detectPose(landmarks) {
-        const angles = this.calculateAngles(landmarks);
-        const matchedPose = this.matchPoseStandard(angles);
-        
-        // 更新UI
-        document.getElementById('pose-name').textContent = 
-matchedPose.name;
-        document.getElementById('score').textContent = 
-          `${this.localeText.score}: ${matchedPose.score}/100`;
-      }
-
-      // 核心角度计算算法
-      calculateAngles(landmarks) {
-        return {
-          leftArm: calcAngle(landmarks[11], landmarks[13], landmarks[15]),
-          rightArm: calcAngle(landmarks[12], landmarks[14], 
-landmarks[16]),
-          // 其他8个角度计算...
-        };
-      }
-
-      // 匹配体式标准
-      matchPoseStandard(angles) {
-        // 体式数据库比对逻辑...
-      }
-    }
-
-    // ================== 启动系统 ==================
-    const coach = new YogaCoach();
-    coach.init();
-  </script>
+  <!-- 引入你的主逻辑JS -->
+  <script src="main.js"></script>
 </body>
 </html>
