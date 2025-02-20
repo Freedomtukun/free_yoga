@@ -1,45 +1,74 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>智能瑜伽实时系统 (Auto-Detect)</title>
-  <!-- 引入外部CSS -->
-  <link rel="stylesheet" href="styles.css">
-
-  <!-- Mediapipe 依赖 -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>瑜伽体式检测系统</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f0f0f0;
+    }
+    #videoContainer {
+      position: relative;
+      width: 640px;
+      height: 480px;
+      margin: 0 auto;
+      border: 2px solid #333;
+    }
+    #video, #canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    #controls {
+      text-align: center;
+      margin-top: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #status {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 20px;
+      color: #333;
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>智能瑜伽实时系统（自动识别示例）</h1>
-  </header>
+  <div id="videoContainer">
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas"></canvas>
+  </div>
+  <div id="controls">
+    <button id="singleDetect">单体检测</button>
+    <button id="sequenceA">拜日A</button>
+    <button id="sequenceB">拜日B</button>
+    <button id="pause">暂停/继续</button>
+    <button id="stop">停止</button>
+    <button id="switchCamera">切换摄像头</button>
+  </div>
+  <div id="status"></div>
 
-  <main>
-    <!-- 摄像头容器 -->
-    <div class="container">
-      <video id="video" playsinline></video>
-      <canvas id="output"></canvas>
-    </div>
-
-    <!-- 按钮行 -->
-    <div class="btn-row">
-      <button id="switchCamBtn">切换摄像头</button>
-      <button id="analyzeBtn">手动分析</button>
-    </div>
-
-    <!-- 结果 & 提示 -->
-    <div id="result"></div>
-    <div id="tips"></div>
-  </main>
-
-  <footer>
-    <p>© 2023 智能瑜伽</p>
-  </footer>
-
-  <!-- 引入你的主逻辑JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils@0.3/control_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3/drawing_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.3/pose.js"></script>
   <script src="main.js"></script>
 </body>
 </html>
