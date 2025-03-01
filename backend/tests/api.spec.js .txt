@@ -1,0 +1,214 @@
+const request = require('supertest');
+const mongoose = require('mongoose');
+const app = require('../server');
+const PoseTemplate = require('../models/PoseTemplate');
+const PoseSequence = require('../models/PoseSequence');
+const User = require('../models/User');
+
+// 测试数据
+const testUser = {
+  username: 'testuser',
+  email: 'test@example.com',
+  password: 'password123'
+};
+
+let authToken;
+let poseId;
+let sequenceId;
+
+// 连接测试数据库
+beforeAll(async () => {
+  const mongoUri = process.env.MONGO_URI_TEST || 'mongodb://localhost:27017/smartyoga_test';
+  await mongoose.connect(mongoUri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  });
+});
+
+// 清理数据库
+afterEach(async () => {
+  await User.deleteMany({});
+  await PoseTemplate.deleteMany({});
+  await PoseSequence.deleteMany({});
+});
+
+// 断开连接
+afterAll(async () => {
+  await mongoose.connection.close();
+});
+
+describe('认证 API', () => {
+  test('用户注册', async () => {
+    const res = await request(app)
+      .post('/api/users/register')
+      .send(testUser);
+    
+    expect(res.statusCode).toBe(201);
+    expect(res.body).toHaveProperty('token');
+    expect(res.body).toHaveProperty('user');
+    expect(res.body.user.username).toBe(testUser.username);
+  });
+
+  test('用户登录', async () => {
+    // 先注册用户
+    await request(app)
+      .post('/api/users/register')
+      .send(testUser);
+    
+    // 然后尝试登录
+    const res = await request(app)
+      .post('/api/users/login')
+      .send({
+        email: testUser.email,
+        password: testUser.password
+      });
+    
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty('token');
+    authToken = res.body.token;
+  });
+});
+
+describe('姿势 API', () => {
+  beforeEach(async () => {
+    // 创建测试用户并获取令牌
+    const userRes = await request(app)
+      .post('/api/users/register')
+      .send(testUser);
+    
+    authToken = userRes.body.token;
+    
+    // 创建测试姿势
+    const poseRes = await request(app)
+      .post('/api/poses')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({
+        name: '测试姿势',
+        englishName: 'Test Pose',
+        description: '这是一个测试姿势',
+        difficulty: 'beginner',
+        category: 'standing',
+        keypoints: {
+          nose: { x: 0.5, y: 0.5 }
+        }
+      });
+    
+    poseId = poseRes.body._id;
+  });
+
+  test('获取所有姿势', async () => {
+    const res = await request(app)
+      .get('/api/poses');
+    
+    expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body)).toBeTruthy();
+  });
+
+  test('获取单个姿势', async () => {
+    const res = await request(app)
+      .get(`/api/poses/${poseId}`);
+    
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty('name', '测试姿势');
+  });
+
+  test('分析姿势', async () => {
+    const res = await request(app)
+      .post('/api/poses/analyze')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({
+        poseId,
+        keypoints: {
+          nose: { x: 0.5, y: 0.5 },
+          leftShoulder: { x: 0.4, y: 0.6 },
+          rightShoulder: { x: 0.6, y: 0.6 }
+        }
+      });
+    
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty('accuracy');
+    expect(res.body).toHaveProperty('feedback');
+  });
+});
+
+describe('序列 API', () => {
+  beforeEach(async () => {
+    // 创建测试用户并获取令牌
+    const userRes = await request(app)
+      .post('/api/users/register')
+      .send(testUser);
+    
+    authToken = userRes.body.token;
+    
+    // 创建测试姿势
+    const poseRes = await request(app)
+      .post('/api/poses')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({
+        name: '测试姿势',
+        englishName: 'Test Pose',
+        description: '这是一个测试姿势',
+        difficulty: 'beginner',
+        category: 'standing',
+        keypoints: {
+          nose: { x: 0.5, y: 0.5 }
+        }
+      });
+    
+    poseId = poseRes.body._id;
+    
+    // 创建测试序列
+    const sequenceRes = await request(app)
+      .post('/api/sequences')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({
+        name: '测试序列',
+        description: '这是一个测试序列',
+        difficulty: 'beginner',
+        category: 'morning',
+        poses: [
+          {
+            pose: poseId,
+            duration: 30,
+            order: 1,
+            transitionHint: '深呼吸'
+          }
+        ]
+      });
+    
+    sequenceId = sequenceRes.body._id;
+  });
+
+  test('获取所有序列', async () => {
+    const res = await request(app)
+      .get('/api/sequences');
+    
+    expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body)).toBeTruthy();
+  });
+
+  test('获取单个序列', async () => {
+    const res = await request(app)
+      .get(`/api/sequences/${sequenceId}`);
+    
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty('name', '测试序列');
+  });
+
+  test('分析序列姿势', async () => {
+    const res = await request(app)
+      .post(`/api/sequences/${sequenceId}/analyze`)
+      .send({
+        keypoints: {
+          nose: { x: 0.5, y: 0.5 },
+          leftShoulder: { x: 0.4, y: 0.6 },
+          rightShoulder: { x: 0.6, y: 0.6 }
+        },
+        poseIndex: 0
+      });
+    
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty('accuracy');
+    expect(res.body).toHaveProperty('feedback');
+  });
+});

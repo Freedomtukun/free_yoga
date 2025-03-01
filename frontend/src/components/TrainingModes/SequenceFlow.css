@@ -1,0 +1,186 @@
+.sequence-flow {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+  
+  .sequence-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .sequence-progress {
+    background-color: #f0f0f0;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+  
+  .current-pose {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .current-pose h3 {
+    margin-top: 0;
+    color: var(--primary-color);
+  }
+  
+  .pose-description {
+    color: var(--light-text);
+    margin-bottom: 1.5rem;
+  }
+  
+  .timer {
+    margin-top: 1.5rem;
+  }
+  
+  .time-remaining {
+    font-size: 2rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+  }
+  
+  .progress-bar {
+    height: 10px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  
+  .progress {
+    height: 100%;
+    background-color: var(--primary-color);
+    transition: width 1s linear;
+  }
+  
+  .pose-analysis {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .next-pose {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .next-pose h4 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+  }
+  
+  .transition-hint {
+    font-style: italic;
+    color: var(--light-text);
+    margin: 0;
+  }
+  
+  .btn-skip {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--light-text);
+    border-radius: 4px;
+    padding: 0.75rem 1.5rem;
+    margin: 0 auto;
+    display: block;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  
+  .btn-skip:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .sequence-summary {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 2rem;
+    max-width: 600px;
+    margin: 2rem auto;
+    text-align: center;
+  }
+  
+  .summary-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin: 2rem 0;
+  }
+  
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .label {
+    color: var(--light-text);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .value {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--primary-color);
+  }
+  
+  .feedback-section {
+    text-align: left;
+    margin-bottom: 2rem;
+  }
+  
+  .feedback-section h4 {
+    margin-bottom: 1rem;
+    color: var(--text-color);
+  }
+  
+  .feedback-section ul {
+    padding-left: 1.5rem;
+  }
+  
+  .feedback-section li {
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+  }
+  
+  .loading, .error {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--light-text);
+  }
+  
+  .error {
+    color: var(--error-color);
+  }
+  
+  /* 移动端样式 */
+  @media screen and (max-width: 768px) {
+    .sequence-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .sequence-progress {
+      margin-top: 0.5rem;
+    }
+    
+    .summary-stats {
+      grid-template-columns: 1fr;
+    }
+  }

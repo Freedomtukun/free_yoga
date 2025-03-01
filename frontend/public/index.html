@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#4CAF50" />
+  <meta name="description" content="智能瑜伽助手 - 使用AI技术改善您的瑜伽练习" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  
+  <!-- DNS 预取，加速中国访问 -->
+  <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+  
+  <!-- 预加载关键资源 -->
+  <link rel="preload" href="%PUBLIC_URL%/mediapipe/pose_web.bin" as="fetch" crossorigin="anonymous" />
+  
+  <!-- SEO 优化 -->
+  <meta name="keywords" content="瑜伽,AI,姿势检测,健身,运动,健康,瑜伽教程,瑜伽训练" />
+  <meta name="author" content="SmartYoga Team" />
+  
+  <!-- 社交媒体分享信息 -->
+  <meta property="og:title" content="SmartYoga - 智能瑜伽助手" />
+  <meta property="og:description" content="使用AI技术改善您的瑜伽练习体验" />
+  <meta property="og:image" content="%PUBLIC_URL%/social-preview.jpg" />
+  <meta property="og:url" content="https://smartyoga.app" />
+  
+  <!-- 微信分享优化 -->
+  <meta itemprop="name" content="SmartYoga - 智能瑜伽助手" />
+  <meta itemprop="description" content="使用AI技术改善您的瑜伽练习体验" />
+  <meta itemprop="image" content="%PUBLIC_URL%/wechat-preview.jpg" />
+  
+  <title>SmartYoga - 智能瑜伽助手</title>
+  
+  <style>
+    /* 初始加载动画，避免白屏 */
+    .app-loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #f8f9fa;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    
+    .app-loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(76, 175, 80, 0.2);
+      border-radius: 50%;
+      border-top-color: #4CAF50;
+      animation: spin 1s ease-in-out infinite;
+    }
+    
+    .app-loading-text {
+      margin-top: 20px;
+      color: #4CAF50;
+      font-family: sans-serif;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* 防止iOS上的双击缩放 */
+    * { touch-action: manipulation; }
+  </style>
+  
+  <!-- 中国 CDN 替代 Google Fonts -->
+  <link href="https://fonts.loli.net/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <noscript>您需要启用 JavaScript 来运行这个应用。</noscript>
+  
+  <!-- 初始加载动画 -->
+  <div class="app-loading" id="app-loading">
+    <div class="app-loading-spinner"></div>
+    <div class="app-loading-text">智能瑜伽助手加载中...</div>
+  </div>
+  
+  <div id="root"></div>
+  
+  <!-- 离线支持提示 -->
+  <div id="offline-message" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: #fff3cd; color: #856404; padding: 10px 20px; border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 1000;">
+    您当前处于离线状态，部分功能可能不可用
+  </div>
+  
+  <script>
+    // 注册 Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(registration => {
+            console.log('Service Worker 注册成功:', registration.scope);
+          })
+          .catch(error => {
+            console.log('Service Worker 注册失败:', error);
+          });
+      });
+    }
+    
+    // 监听离线状态
+    window.addEventListener('offline', function() {
+      document.getElementById('offline-message').style.display = 'block';
+      setTimeout(() => {
+        document.getElementById('offline-message').style.display = 'none';
+      }, 5000);
+    });
+    
+    // 移除加载动画
+    window.addEventListener('load', function() {
+      setTimeout(() => {
+        const loadingElement = document.getElementById('app-loading');
+        if (loadingElement) {
+          loadingElement.style.opacity = '0';
+          loadingElement.style.transition = 'opacity 0.5s';
+          setTimeout(() => {
+            loadingElement.style.display = 'none';
+          }, 500);
+        }
+      }, 500);
+    });
+    
+    // 防止在微信浏览器中下拉刷新
+    document.body.addEventListener('touchmove', function(e) {
+      if(e.touches.length > 1 || e.scale && e.scale !== 1) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+  </script>
+</body>
+</html>

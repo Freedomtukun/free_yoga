@@ -1,0 +1,292 @@
+.sequence-builder {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+  
+  .sequence-builder h1 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--text-color);
+  }
+  
+  .sequence-info {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  
+  .checkbox-group {
+    display: flex;
+    align-items: center;
+  }
+  
+  .checkbox-group input {
+    margin-right: 0.5rem;
+    width: auto;
+  }
+  
+  .sequence-builder-content {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .available-poses,
+  .selected-poses {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    height: 600px;
+  }
+  
+  .available-poses h2,
+  .selected-poses h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--primary-color);
+  }
+  
+  .drag-instruction {
+    color: var(--light-text);
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+  }
+  
+  .search-box {
+    margin-bottom: 1rem;
+  }
+  
+  .search-box input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.9rem;
+  }
+  
+  .poses-list,
+  .sequence-poses {
+    flex: 1;
+    overflow-y: auto;
+    border: 1px dashed var(--border-color);
+    border-radius: 4px;
+    padding: 0.5rem;
+    background-color: #f9f9f9;
+  }
+  
+  .empty-sequence {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    color: var(--light-text);
+    padding: 2rem;
+  }
+  
+  .pose-item {
+    background-color: white;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    cursor: grab;
+  }
+  
+  .pose-item:active {
+    cursor: grabbing;
+  }
+  
+  .pose-info {
+    flex: 1;
+  }
+  
+  .pose-info h3 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1rem;
+  }
+  
+  .pose-info p {
+    margin: 0 0 0.5rem 0;
+    color: var(--light-text);
+    font-size: 0.85rem;
+  }
+  
+  .pose-thumbnail {
+    width: 50px;
+    height: 50px;
+    overflow: hidden;
+    border-radius: 4px;
+    margin-left: 1rem;
+  }
+  
+  .pose-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .difficulty {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 500;
+  }
+  
+  .beginner {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: var(--primary-color);
+  }
+  
+  .intermediate {
+    background-color: rgba(255, 152, 0, 0.1);
+    color: #FF9800;
+  }
+  
+  .advanced {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: var(--error-color);
+  }
+  
+  .sequence-pose-item {
+    background-color: white;
+    border-radius: 4px;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
+  
+  .pose-order {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    font-weight: 500;
+    margin-right: 1rem;
+    cursor: grab;
+  }
+  
+  .pose-order:active {
+    cursor: grabbing;
+  }
+  
+  .pose-details {
+    flex: 1;
+  }
+  
+  .pose-details h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+  }
+  
+  .pose-params {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 0.5rem;
+  }
+  
+  .param-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .param-group label {
+    font-size: 0.75rem;
+    color: var(--light-text);
+    margin-bottom: 0.25rem;
+  }
+  
+  .param-group input {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+  
+  .btn-remove {
+    background: none;
+    border: none;
+    color: var(--light-text);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    margin-left: 0.5rem;
+  }
+  
+  .btn-remove:hover {
+    color: var(--error-color);
+  }
+  
+  .sequence-summary {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+  }
+  
+  .summary-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+  
+  .sequence-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+  }
+  
+  /* 移动端优化 */
+  @media screen and (max-width: 768px) {
+    .sequence-builder-content {
+      grid-template-columns: 1fr;
+    }
+    
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+    
+    .available-poses,
+    .selected-poses {
+      height: auto;
+      max-height: 400px;
+    }
+    
+    .pose-params {
+      grid-template-columns: 1fr;
+    }
+    
+    .sequence-actions {
+      flex-direction: column;
+    }
+    
+    .sequence-actions button {
+      width: 100%;
+    }
+  }
