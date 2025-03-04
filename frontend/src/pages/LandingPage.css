@@ -1,0 +1,271 @@
+.landing-page {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    line-height: 1.6;
+  }
+  
+  .container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  section {
+    padding: 80px 0;
+  }
+  
+  h1, h2, h3, h4 {
+    font-weight: 700;
+    margin-bottom: 15px;
+    line-height: 1.2;
+  }
+  
+  h1 {
+    font-size: 3rem;
+    color: #3a5edf;
+  }
+  
+  h2 {
+    font-size: 2.2rem;
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  
+  h3 {
+    font-size: 1.5rem;
+  }
+  
+  p {
+    margin-bottom: 15px;
+  }
+  
+  .btn {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+  }
+  
+  .btn-large {
+    padding: 16px 32px;
+    font-size: 1.1rem;
+  }
+  
+  .btn-primary {
+    background-color: #3a5edf;
+    color: white;
+    border: 2px solid #3a5edf;
+  }
+  
+  .btn-primary:hover {
+    background-color: #2a4bcf;
+    border-color: #2a4bcf;
+  }
+  
+  .btn-secondary {
+    background-color: transparent;
+    color: #3a5edf;
+    border: 2px solid #3a5edf;
+  }
+  
+  .btn-secondary:hover {
+    background-color: rgba(58, 94, 223, 0.1);
+  }
+  
+  /* Hero Section */
+  .hero {
+    background: linear-gradient(135deg, #f5f7ff 0%, #e8eeff 100%);
+    padding: 100px 0;
+  }
+  
+  .hero .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+  }
+  
+  .hero-content {
+    flex: 1;
+  }
+  
+  .hero-content h2 {
+    text-align: left;
+    margin-bottom: 20px;
+    color: #555;
+    font-size: 1.8rem;
+  }
+  
+  .hero-content p {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 30px;
+  }
+  
+  .hero-image {
+    flex: 1;
+    max-width: 500px;
+  }
+  
+  .hero-image img {
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+  
+  .cta-buttons {
+    display: flex;
+    gap: 15px;
+  }
+  
+  /* Problem Section */
+  .problems {
+    background-color: #fff;
+  }
+  
+  .problem-cards {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+  }
+  
+  .problem-card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    flex: 1;
+    min-width: 250px;
+    max-width: 350px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-align: center;
+  }
+  
+  .problem-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+  
+  .problem-card .icon {
+    font-size: 2.5rem;
+    color: #ff6b6b;
+    margin-bottom: 20px;
+  }
+  
+  /* Solutions Section */
+  .solutions {
+    background-color: #f7f9ff;
+  }
+  
+  .solution-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+  }
+  
+  .solution-item {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+    text-align: center;
+  }
+  
+  .solution-item:hover {
+    transform: translateY(-5px);
+  }
+  
+  .solution-icon {
+    font-size: 2rem;
+    color: #3a5edf;
+    background: rgba(58, 94, 223, 0.1);
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+  }
+  
+  /* CTA Section */
+  .cta {
+    background: linear-gradient(135deg, #3a5edf 0%, #2a4bcf 100%);
+    color: white;
+    text-align: center;
+  }
+  
+  .cta h2 {
+    color: white;
+    margin-bottom: 20px;
+  }
+  
+  .cta p {
+    font-size: 1.2rem;
+    max-width: 700px;
+    margin: 0 auto 30px;
+  }
+  
+  .cta .btn-secondary {
+    color: white;
+    border-color: white;
+  }
+  
+  .cta .btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    section {
+      padding: 60px 0;
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+    }
+    
+    h2 {
+      font-size: 1.8rem;
+    }
+    
+    .hero .container {
+      flex-direction: column;
+    }
+    
+    .hero-content {
+      text-align: center;
+      order: 1;
+    }
+    
+    .hero-content h2 {
+      text-align: center;
+    }
+    
+    .hero-image {
+      order: 0;
+      margin-bottom: 30px;
+    }
+    
+    .cta-buttons {
+      justify-content: center;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .cta-buttons {
+      flex-direction: column;
+      width: 100%;
+    }
+    
+    .btn {
+      width: 100%;
+    }
+  }

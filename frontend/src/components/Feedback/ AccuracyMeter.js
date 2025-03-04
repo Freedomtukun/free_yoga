@@ -1,84 +1,82 @@
-.accuracy-meter {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 15px;
-  background-color: #f9f9f9;
-  border-radius: 10px;
-}
+import React from 'react';
+import './AccuracyMeter.css';
 
-.meter-container {
-  position: relative;
-  width: 200px;
-  height: 100px;
-  margin-bottom: 15px;
-}
+/**
+ * 准确度计量表组件 - 显示姿势准确度评分
+ * 
+ * @param {Object} props
+ * @param {number} props.accuracy - 0-100之间的准确度评分
+ * @param {string} props.label - 可选的标签文本，默认为"姿势准确度"
+ * @param {boolean} props.showValue - 是否显示准确度数值，默认为true
+ * @param {boolean} props.showDial - 是否显示表盘样式，默认为false
+ * @param {string} props.className - 可选的额外CSS类名
+ */
+const AccuracyMeter = ({ 
+  accuracy = 0, 
+  label = "姿势准确度", 
+  showValue = true, 
+  showDial = false,
+  className = '' 
+}) => {
+  // 确保准确度在有效范围内
+  const validAccuracy = Math.max(0, Math.min(100, accuracy));
+  
+  // 确定准确度级别
+  const getAccuracyLevel = (value) => {
+    if (value < 50) return 'poor';
+    if (value < 75) return 'average';
+    return 'good';
+  };
+  
+  const accuracyLevel = getAccuracyLevel(validAccuracy);
 
-.meter-scale {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: space-between;
-  padding: 0 10px;
-}
+  return (
+    <div className={`accuracy-meter ${className}`}>
+      <div className="accuracy-label">{label}</div>
+      
+      {showDial ? (
+        // 仪表盘风格
+        <div className="meter-container">
+          <div className="meter-scale">
+            <span className="meter-label low">低</span>
+            <span className="meter-label medium">中</span>
+            <span className="meter-label high">高</span>
+          </div>
+          
+          <div className="meter-dial">
+            <div 
+              className={`meter-value ${accuracyLevel}`}
+              style={{ 
+                transform: `translateX(-50%) rotate(${validAccuracy * 1.8}deg)`
+              }}
+            ></div>
+          </div>
+          
+          {showValue && (
+            <div className={`accuracy-value ${accuracyLevel}`}>
+              {Math.round(validAccuracy)}%
+            </div>
+          )}
+        </div>
+      ) : (
+        // 进度条风格
+        <div className="accuracy-bar-container">
+          <div className="accuracy-bar">
+            <div 
+              className={`accuracy-fill ${accuracyLevel}`}
+              style={{ width: `${validAccuracy}%` }}
+            ></div>
+          </div>
+          
+          {showValue && (
+            <div className={`accuracy-value ${accuracyLevel}`}>
+              {Math.round(validAccuracy)}%
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
-.meter-label {
-  position: absolute;
-  bottom: 0;
-  font-size: 12px;
-  color: #777;
-}
-
-.meter-label.low {
-  left: 0;
-}
-
-.meter-label.medium {
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.meter-label.high {
-  right: 0;
-}
-
-.meter-dial {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 100px;
-  height: 100px;
-  border-radius: 100px 100px 0 0;
-  background-color: #e0e0e0;
-  overflow: hidden;
-  transform: translateX(-50%);
-}
-
-.meter-value {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 5px;
-  height: 50px;
-  background-color: #4CAF50;
-  transform-origin: bottom center;
-  transform: translateX(-50%) rotate(0deg);
-  transition: transform 0.5s ease-out;
-}
-
-.accuracy-value {
-  position: absolute;
-  bottom: 15px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 24px;
-  font-weight: 600;
-  color: #4CAF50;
-}
-
-.accuracy-label {
-  font-size: 18px;
-  font-weight: 500;
-  color: #555;
-}
+export default AccuracyMeter;

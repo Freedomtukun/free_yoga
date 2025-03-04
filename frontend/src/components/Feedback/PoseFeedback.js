@@ -1,41 +1,56 @@
-.pose-feedback {
-  background-color: white;
-  border-radius: 10px;
-  padding: 15px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
+import React from 'react';
+import './PoseFeedback.css';
 
-.pose-feedback h4 {
-  margin-top: 0;
-  margin-bottom: 10px;
-  color: #555;
-  font-weight: 500;
-}
+/**
+ * 姿势反馈组件 - 显示AI评估的姿势反馈信息
+ * 
+ * @param {Object} props
+ * @param {string} props.message - 反馈信息文本
+ * @param {Array} props.feedbackItems - 可选的反馈项列表
+ * @param {boolean} props.isLoading - 是否处于加载状态
+ * @param {string} props.className - 可选的额外CSS类名
+ */
+const PoseFeedback = ({ message, feedbackItems = [], isLoading = false, className = '' }) => {
+  // 如果没有反馈信息且不在加载中，显示空状态
+  if (!message && !isLoading && feedbackItems.length === 0) {
+    return (
+      <div className="pose-feedback-empty">
+        等待姿势分析中...
+      </div>
+    );
+  }
 
-.feedback-list {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-}
+  return (
+    <div className={`pose-feedback ${className}`}>
+      <h4>
+        <span className="feedback-icon">💬</span>
+        AI 反馈
+      </h4>
+      
+      <div className="feedback-content">
+        {isLoading ? (
+          <div className="feedback-loading">
+            <div className="feedback-loading-spinner"></div>
+            <p>正在分析您的姿势...</p>
+          </div>
+        ) : (
+          <>
+            {message && <p className="feedback-message">{message}</p>}
+            
+            {feedbackItems.length > 0 && (
+              <ul className="feedback-list">
+                {feedbackItems.map((item, index) => (
+                  <li key={index} className="feedback-item">
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
 
-.feedback-item {
-  padding: 10px;
-  background-color: #f9f9f9;
-  border-left: 3px solid #4CAF50;
-  margin-bottom: 8px;
-  border-radius: 0 5px 5px 0;
-  color: #555;
-}
-
-.feedback-item:last-child {
-  margin-bottom: 0;
-}
-
-.pose-feedback-empty {
-  padding: 20px;
-  text-align: center;
-  color: #777;
-  font-style: italic;
-  background-color: #f5f5f5;
-  border-radius: 10px;
-}
+export default PoseFeedback;

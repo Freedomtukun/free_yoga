@@ -1,109 +1,120 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 import './Home.css';
+import { useAuth } from '../contexts/AuthContext';
+import LandingPage from './LandingPage';
 
 const Home = () => {
-  const { isAuthenticated } = useAuth();
+  const { currentUser } = useAuth();
+
+  // 如果用户未登录，显示LandingPage
+  if (!currentUser) {
+    return <LandingPage />;
+  }
 
   return (
-    <div className="home-container">
-      <section className="hero-section">
-        <div className="container">
-          <div className="hero-content">
-            <h1>智能瑜伽助手</h1>
-            <p>利用AI技术实时分析姿势，提升您的瑜伽练习体验</p>
-            
-            <div className="hero-buttons">
-              {isAuthenticated ? (
-                <>
-                  <Link to="/train/free" className="btn-primary">开始练习</Link>
-                  <Link to="/sequences" className="btn-secondary">浏览序列</Link>
-                </>
-              ) : (
-                <>
-                  <Link to="/register" className="btn-primary">免费注册</Link>
-                  <Link to="/login" className="btn-secondary">立即登录</Link>
-                </>
-              )}
+    <div className="home-dashboard">
+      <div className="container">
+        {/* 新增: 个性化欢迎横幅 */}
+        <div className="welcome-banner">
+          <div className="user-greeting">
+            <h1>欢迎回来，{currentUser.name}！</h1>
+            <p className="last-activity">上次练习：2天前 · 完成了"舒缓放松流"</p>
+          </div>
+          <div className="quick-stats">
+            <div className="stat">
+              <span className="stat-number">7</span>
+              <span className="stat-label">总练习次数</span>
+            </div>
+            <div className="stat">
+              <span className="stat-number">3</span>
+              <span className="stat-label">本周练习</span>
+            </div>
+            <div className="stat">
+              <span className="stat-number">5</span>
+              <span className="stat-label">连续天数</span>
             </div>
           </div>
         </div>
-      </section>
 
-      <section className="features-section">
-        <div className="container">
-          <h2 className="section-title">主要功能</h2>
+        <div className="dashboard-grid">
+          <div className="dashboard-card">
+            <h2>继续您的练习</h2>
+            <div className="last-session">
+              <div className="session-image">
+                <img src="/api/placeholder/100/100" alt="上次练习" />
+              </div>
+              <div className="session-details">
+                <h3>舒缓放松流</h3>
+                <p>已完成 15 分钟，还剩 5 分钟</p>
+                <Link to="/sequence/2?resume=true" className="btn btn-primary btn-sm">继续练习</Link>
+              </div>
+            </div>
+          </div>
           
-          <div className="feature-cards">
-            <div className="feature-card">
-              <div className="feature-icon">AI</div>
-              <h3>智能姿势分析</h3>
-              <p>实时检测和分析您的瑜伽姿势，提供即时反馈</p>
+          <div className="dashboard-card">
+            <h2>您的进度</h2>
+            <div className="stats">
+              <div className="stat-item">
+                <span className="stat-value">5</span>
+                <span className="stat-label">已完成练习</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-value">3</span>
+                <span className="stat-label">连续天数</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-value">120</span>
+                <span className="stat-label">总分钟数</span>
+              </div>
             </div>
-            
-            <div className="feature-card">
-              <div className="feature-icon">📊</div>
-              <h3>数据追踪</h3>
-              <p>记录您的练习历史和进步，帮助您持续提高</p>
-            </div>
-            
-            <div className="feature-card">
-              <div className="feature-icon">🧘</div>
-              <h3>专业序列</h3>
-              <p>多种瑜伽序列满足不同需求，从初学者到高级练习者</p>
-            </div>
-            
-            <div className="feature-card">
-              <div className="feature-icon">📱</div>
-              <h3>随时随地练习</h3>
-              <p>无需专业设备，随时随地进行瑜伽练习</p>
-            </div>
+            <Link to="/profile" className="btn btn-secondary">查看详情</Link>
           </div>
-        </div>
-      </section>
-
-      <section className="how-it-works">
-        <div className="container">
-          <h2 className="section-title">如何使用</h2>
           
-          <div className="steps">
-            <div className="step">
-              <div className="step-number">1</div>
-              <h3>选择训练模式</h3>
-              <p>选择自由训练或预设的序列训练</p>
-            </div>
-            
-            <div className="step">
-              <div className="step-number">2</div>
-              <h3>打开摄像头</h3>
-              <p>保证您的整个身体在画面中可见</p>
-            </div>
-            
-            <div className="step">
-              <div className="step-number">3</div>
-              <h3>开始练习</h3>
-              <p>跟随指导，获得实时反馈和改进建议</p>
-            </div>
-            
-            <div className="step">
-              <div className="step-number">4</div>
-              <h3>追踪进度</h3>
-              <p>查看您的练习历史和进步</p>
+          {/* 更新: 个性化推荐部分 */}
+          <div className="dashboard-card">
+            <h2>为您推荐</h2>
+            <div className="personalized-recommendations">
+              <div className="recommendation-item">
+                <img src="/api/placeholder/240/160" alt="专为您推荐的序列" />
+                <div className="recommendation-details">
+                  <h3>柔韧度提升计划</h3>
+                  <p>基于您的练习历史，我们认为这个序列很适合您</p>
+                  <Link to="/sequence/5" className="btn btn-sm btn-primary">开始练习</Link>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+          
+          <div className="dashboard-card">
+            <h2>今日提示</h2>
+            <div className="daily-tip">
+              <p>"深呼吸是瑜伽练习的基础。在每次体式转换之间，记得回到呼吸。"</p>
+            </div>
+          </div>
 
-      <section className="cta-section">
-        <div className="container">
-          <h2>开始您的瑜伽之旅</h2>
-          <p>智能助手帮助您提升瑜伽技能，改善身体健康</p>
-          <Link to={isAuthenticated ? "/train/free" : "/register"} className="btn-primary btn-large">
-            {isAuthenticated ? "立即开始" : "免费注册"}
-          </Link>
+          {/* 新增: 收藏的序列 */}
+          <div className="dashboard-card">
+            <h2>我的收藏</h2>
+            <div className="favorites-list">
+              {[
+                { id: 1, title: '核心力量训练', level: '中级', imageUrl: '/api/placeholder/80/80' },
+                { id: 2, title: '睡前放松流', level: '初级', imageUrl: '/api/placeholder/80/80' },
+              ].map(item => (
+                <div key={item.id} className="favorite-item">
+                  <img src={item.imageUrl} alt={item.title} />
+                  <div className="favorite-details">
+                    <h4>{item.title}</h4>
+                    <span className="level-badge">{item.level}</span>
+                  </div>
+                  <Link to={`/sequence/${item.id}`} className="btn btn-sm btn-outline">练习</Link>
+                </div>
+              ))}
+            </div>
+            <Link to="/favorites" className="btn btn-text">查看全部收藏</Link>
+          </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 };

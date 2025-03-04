@@ -1,0 +1,230 @@
+/* SequenceList.css */
+
+.sequence-list-page {
+  padding: 50px 0;
+  background-color: #f9fafc;
+}
+
+.sequence-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.sequence-header h1 {
+  color: #3a5edf;
+  margin-bottom: 10px;
+}
+
+.sequence-header p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+/* Filters */
+.sequence-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 30px;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.filter-group {
+  min-width: 200px;
+  flex: 1;
+}
+
+.filter-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #555;
+}
+
+.filter-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: #fff;
+  font-size: 1rem;
+  color: #333;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 8.825L1.175 4 2.237 2.938 6 6.7 9.763 2.938 10.825 4z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  cursor: pointer;
+}
+
+.filter-group select:focus {
+  border-color: #3a5edf;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(58, 94, 223, 0.2);
+}
+
+/* Sequence Cards */
+.sequence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+.sequence-card {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.sequence-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.sequence-image {
+  position: relative;
+  height: 180px;
+}
+
+.sequence-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sequence-duration {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  font-size: 0.85rem;
+  padding: 5px 10px;
+  border-radius: 20px;
+}
+
+.sequence-content {
+  padding: 20px;
+}
+
+.sequence-content h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.sequence-content p {
+  color: #666;
+  margin-bottom: 15px;
+  font-size: 0.95rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sequence-meta {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.level-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.level-badge.beginner {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.level-badge.intermediate {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.level-badge.advanced {
+  background-color: #fce4ec;
+  color: #c2185b;
+}
+
+.focus-tag {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  background-color: #f5f5f5;
+  color: #616161;
+}
+
+.sequence-popularity {
+  margin-bottom: 15px;
+}
+
+.popularity-bar {
+  height: 6px;
+  background-color: #eee;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+
+.popularity-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3a5edf 0%, #5f82ff 100%);
+  border-radius: 3px;
+}
+
+.sequence-popularity span {
+  font-size: 0.85rem;
+  color: #777;
+}
+
+.btn-sm {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  display: block;
+  text-align: center;
+  margin-top: 15px;
+}
+
+/* Loading and No Results */
+.loading-container, .no-results {
+  text-align: center;
+  padding: 50px 0;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.loading-container p, .no-results p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sequence-filters {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .filter-group {
+    width: 100%;
+  }
+  
+  .sequence-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .sequence-list-page {
+    padding: 30px 0;
+  }
+}

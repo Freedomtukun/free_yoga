@@ -1,0 +1,133 @@
+/* AccuracyMeter.css */
+
+.accuracy-meter {
+    margin-top: 15px;
+  }
+  
+  .accuracy-label {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    color: #555;
+    font-weight: 500;
+  }
+  
+  /* 进度条样式 */
+  .accuracy-bar-container {
+    position: relative;
+    margin-bottom: 5px;
+  }
+  
+  .accuracy-bar {
+    height: 8px;
+    background: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 5px;
+  }
+  
+  .accuracy-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease-out;
+  }
+  
+  .accuracy-fill.poor {
+    background: linear-gradient(to right, #ff5722, #ff9800);
+  }
+  
+  .accuracy-fill.average {
+    background: linear-gradient(to right, #ffc107, #8bc34a);
+  }
+  
+  .accuracy-fill.good {
+    background: linear-gradient(to right, #2e7d32, #4caf50);
+  }
+  
+  .accuracy-value {
+    text-align: right;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  
+  .accuracy-value.poor {
+    color: #ff5722;
+  }
+  
+  .accuracy-value.average {
+    color: #ffc107;
+  }
+  
+  .accuracy-value.good {
+    color: #2e7d32;
+  }
+  
+  /* 仪表盘样式 */
+  .meter-container {
+    position: relative;
+    width: 200px;
+    height: 100px;
+    margin: 0 auto 15px;
+  }
+  
+  .meter-scale {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 10px;
+  }
+  
+  .meter-label {
+    position: absolute;
+    bottom: 0;
+    font-size: 12px;
+    color: #777;
+  }
+  
+  .meter-label.low {
+    left: 0;
+  }
+  
+  .meter-label.medium {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .meter-label.high {
+    right: 0;
+  }
+  
+  .meter-dial {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 100px;
+    height: 100px;
+    border-radius: 100px 100px 0 0;
+    background-color: #e0e0e0;
+    overflow: hidden;
+    transform: translateX(-50%);
+  }
+  
+  .meter-value {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 4px;
+    height: 50px;
+    transform-origin: bottom center;
+    transition: transform 0.5s ease-out;
+  }
+  
+  .meter-value.poor {
+    background-color: #ff5722;
+  }
+  
+  .meter-value.average {
+    background-color: #ffc107;
+  }
+  
+  .meter-value.good {
+    background-color: #4CAF50;
+  }

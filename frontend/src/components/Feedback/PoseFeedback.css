@@ -1,0 +1,82 @@
+/* PoseFeedback.css */
+
+.pose-feedback {
+    background-color: #f0f8ff;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .pose-feedback h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #3a5edf;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+  }
+  
+  .feedback-icon {
+    margin-right: 8px;
+    font-size: 1.1rem;
+  }
+  
+  .feedback-content {
+    color: #555;
+  }
+  
+  .feedback-message {
+    margin: 0 0 15px;
+    line-height: 1.5;
+  }
+  
+  .feedback-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .feedback-item {
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-left: 3px solid #4CAF50;
+    margin-bottom: 8px;
+    border-radius: 0 5px 5px 0;
+    color: #555;
+  }
+  
+  .feedback-item:last-child {
+    margin-bottom: 0;
+  }
+  
+  .pose-feedback-empty {
+    padding: 20px;
+    text-align: center;
+    color: #777;
+    font-style: italic;
+    background-color: #f5f5f5;
+    border-radius: 10px;
+  }
+  
+  .feedback-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+  }
+  
+  .feedback-loading-spinner {
+    border: 3px solid rgba(58, 94, 223, 0.3);
+    border-radius: 50%;
+    border-top: 3px solid #3a5edf;
+    width: 30px;
+    height: 30px;
+    animation: feedback-spin 1s linear infinite;
+    margin-bottom: 10px;
+  }
+  
+  @keyframes feedback-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }

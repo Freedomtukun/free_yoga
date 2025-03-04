@@ -1,89 +1,195 @@
 /**
- * 设备信息检测工具
- * 针对中国智能手机用户优化
+ * 设备兼容性检查工具
+ * 用于检测用户设备是否支持SmartYoga应用所需的功能
  */
 
-// 检测是否为移动设备
-export const isMobileDevice = () => {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  };
+/**
+ * 检查浏览器是否支持MediaPipe所需的WebGL功能
+ * @returns {boolean} 是否支持WebGL
+ */
+export const isWebGLSupported = () => {
+  try {
+    const canvas = document.createElement('canvas');
+    return !!(
+      window.WebGLRenderingContext &&
+      (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))
+    );
+  } catch (e) {
+    return false;
+  }
+};
+
+/**
+ * 检查浏览器是否支持摄像头访问
+ * @returns {Promise<boolean>} 是否支持摄像头访问
+ */
+export const isCameraSupported = async () => {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    return false;
+  }
   
-  // 检测是否为iOS设备
-  export const isIosDevice = () => {
-    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-  };
-  
-  // 检测是否为安卓设备
-  export const isAndroidDevice = () => {
-    return /Android/.test(navigator.userAgent);
-  };
-  
-  // 检测是否为微信浏览器
-  export const isWechatBrowser = () => {
-    return /MicroMessenger/i.test(navigator.userAgent);
-  };
-  
-  // 检测是否支持WebGL (用于高级图形功能)
-  export const hasWebGLSupport = () => {
-    try {
-      const canvas = document.createElement('canvas');
-      return !!(window.WebGLRenderingContext && 
-        (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
-    } catch (e) {
-      return false;
+  try {
+    // 尝试请求摄像头权限
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    // 成功获取后释放摄像头
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      return true;
     }
+    return false;
+  } catch (e) {
+    return false;
+  }
+};
+
+/**
+ * 检查设备是否支持陀螺仪（用于移动设备姿态检测辅助）
+ * @returns {boolean} 是否支持陀螺仪
+ */
+export const isGyroscopeSupported = () => {
+  return window.DeviceOrientationEvent !== undefined;
+};
+
+/**
+ * 检查设备性能，确保足够运行AI姿势检测
+ * @returns {Object} 设备性能评估结果
+ */
+export const checkDevicePerformance = () => {
+  // 检查处理器核心数
+  const cpuCores = navigator.hardwareConcurrency || 0;
+  
+  // 检查设备内存 (不是所有浏览器都支持)
+  const deviceMemory = navigator.deviceMemory || 0;
+  
+  // 检查是否为移动设备
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  );
+  
+  return {
+    cpuCores,
+    deviceMemory,
+    isMobile,
+    // 简单性能评级: high, medium, low
+    performanceLevel: cpuCores >= 4 && deviceMemory >= 4 
+      ? 'high' 
+      : cpuCores >= 2 
+        ? 'medium' 
+        : 'low'
+  };
+};
+
+/**
+ * 全面检查设备兼容性
+ * @returns {Promise<Object>} 兼容性检查结果
+ */
+export const checkDeviceCompatibility = async () => {
+  const webglSupport = isWebGLSupported();
+  const cameraSupport = await isCameraSupported();
+  const gyroscopeSupport = isGyroscopeSupported();
+  const performance = checkDevicePerformance();
+  
+  // 判断设备总体兼容性
+  const isCompatible = webglSupport && cameraSupport;
+  
+  // 确定适合的模式
+  let recommendedMode = 'full'; // 完整模式
+  
+  if (!isCompatible) {
+    recommendedMode = 'incompatible'; // 不兼容
+  } else if (performance.performanceLevel === 'low') {
+    recommendedMode = 'lite'; // 轻量级模式
+  }
+  
+  return {
+    isCompatible,
+    webglSupport,
+    cameraSupport,
+    gyroscopeSupport,
+    performance,
+    recommendedMode
+  };
+};
+
+/**
+ * 获取MediaPipe配置，根据设备性能调整
+ * @param {Object} performanceLevel 设备性能评级
+ * @returns {Object} MediaPipe配置
+ */
+export const getMediaPipeConfig = (performanceLevel) => {
+  // 基础配置
+  const baseConfig = {
+    runtime: 'mediapipe',
+    modelType: 'full',
+    solutionPath: '/mediapipe/',
+    smoothLandmarks: true,
   };
   
-  // 获取设备的像素比
-  export const getDevicePixelRatio = () => {
-    return window.devicePixelRatio || 1;
+  // 根据设备性能调整配置
+  switch(performanceLevel) {
+    case 'high':
+      return {
+        ...baseConfig,
+        enableSmoothing: true,
+        enableSegmentation: true,
+        refineFaceLandmarks: true,
+        maxPoses: 1,
+      };
+    case 'medium':
+      return {
+        ...baseConfig,
+        modelType: 'lite',
+        enableSmoothing: true,
+        enableSegmentation: false,
+        refineFaceLandmarks: false,
+        maxPoses: 1,
+      };
+    case 'low':
+      return {
+        ...baseConfig,
+        modelType: 'lite',
+        enableSmoothing: false,
+        enableSegmentation: false,
+        refineFaceLandmarks: false,
+        maxPoses: 1,
+        detectionConfidence: 0.5, // 降低检测置信度以提高速度
+      };
+    default:
+      return baseConfig;
+  }
+};
+
+/**
+ * 正确配置MediaPipe的文件加载路径
+ * @returns {Function} locateFile函数
+ */
+export const getLocateFileFunction = () => {
+  return (file) => {
+    // 确保从正确的公共目录加载MediaPipe文件
+    return `/mediapipe/${file}`;
   };
-  
-  // 检测设备可用内存 (某些浏览器支持)
-  export const getDeviceMemory = () => {
-    return navigator.deviceMemory || 'unknown';
-  };
-  
-  // 检测设备性能级别
-  export const getDevicePerformance = () => {
-    // 基于设备内存和处理器核心数进行评估
-    const memory = navigator.deviceMemory || 4; // 默认假设4GB
-    const cores = navigator.hardwareConcurrency || 4; // 默认假设4核
-    
-    if (memory >= 4 && cores >= 8) {
-      return 'high';
-    } else if (memory >= 2 && cores >= 4) {
-      return 'medium';
-    } else {
-      return 'low';
-    }
-  };
-  
-  // 获取合适的图片质量
-  export const getAppropriateImageQuality = () => {
-    const performance = getDevicePerformance();
-    const isOnline = navigator.onLine;
-    const connection = navigator.connection || 
-                       navigator.mozConnection || 
-                       navigator.webkitConnection;
-    
-    // 离线状态下使用最低质量
-    if (!isOnline) return 'low';
-    
-    // 根据网络状态调整
-    if (connection) {
-      // 2G或慢速连接使用低质量
-      if (connection.type === 'cellular' && 
-         (connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g')) {
-        return 'low';
+};
+
+/**
+ * 尝试重新加载摄像头
+ * @param {Function} onSuccess 成功回调
+ * @param {Function} onError 错误回调
+ */
+export const retryCameraAccess = async (onSuccess, onError) => {
+  try {
+    const constraints = {
+      video: {
+        facingMode: 'user',
+        width: { ideal: 640 },
+        height: { ideal: 480 }
       }
-      
-      // 3G使用中等质量
-      if (connection.effectiveType === '3g') {
-        return 'medium';
-      }
-    }
+    };
     
-    // 根据设备性能返回
-    return performance;
-  };
+    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+    if (onSuccess) onSuccess(stream);
+    return true;
+  } catch (error) {
+    if (onError) onError(error);
+    return false;
+  }
+};

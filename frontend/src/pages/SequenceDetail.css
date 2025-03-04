@@ -1,0 +1,482 @@
+.sequence-detail-page {
+  padding: 50px 0;
+  background-color: #f9fafc;
+}
+
+.loading {
+  text-align: center;
+  padding: 50px 0;
+  color: #666;
+}
+
+/* 序列头部 */
+.sequence-header {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 40px;
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.sequence-image {
+  position: relative;
+  flex: 0 0 40%;
+  max-width: 40%;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.sequence-image img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  display: block;
+}
+
+.sequence-duration-badge {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+.sequence-info {
+  flex: 1;
+}
+
+.sequence-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.sequence-info h1 {
+  margin: 0;
+  color: #333;
+  font-size: 2.2rem;
+}
+
+.favorite-button {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #ddd;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.favorite-button:hover {
+  transform: scale(1.1);
+}
+
+.favorite-button.favorited {
+  color: #ffc107;
+}
+
+.sequence-meta {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.detail-badge {
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.level-beginner {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.level-intermediate {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.level-advanced {
+  background-color: #fce4ec;
+  color: #c2185b;
+}
+
+.duration-badge {
+  background-color: #f5f5f5;
+  color: #616161;
+}
+
+.focus-badge {
+  background-color: #fff8e1;
+  color: #ff8f00;
+}
+
+.sequence-description {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #555;
+  margin-bottom: 25px;
+}
+
+.sequence-stats {
+  display: flex;
+  gap: 30px;
+  margin-bottom: 25px;
+}
+
+.sequence-stat {
+  text-align: center;
+}
+
+.stat-value {
+  display: block;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #3a5edf;
+  line-height: 1;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.btn-lg {
+  padding: 12px 24px;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid #3a5edf;
+  color: #3a5edf;
+}
+
+/* 序列内容 */
+.sequence-content {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  margin-bottom: 40px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.sequence-tabs {
+  display: flex;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 30px;
+}
+
+.tab-button {
+  padding: 15px 25px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #777;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tab-button.active {
+  color: #3a5edf;
+  border-bottom-color: #3a5edf;
+}
+
+.pose-sequence h2 {
+  margin-top: 0;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.sequence-timeline {
+  position: relative;
+}
+
+.timeline-connector {
+  position: absolute;
+  top: 100%;
+  left: 30px;
+  height: 40px;
+  width: 2px;
+  background-color: #ddd;
+}
+
+.pose-item {
+  position: relative;
+  display: flex;
+  margin-bottom: 40px;
+}
+
+.pose-number {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #3a5edf;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-right: 20px;
+  z-index: 1;
+}
+
+.pose-card {
+  flex: 1;
+  display: flex;
+  background: #f7f9ff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.pose-image {
+  position: relative;
+  width: 200px;
+  flex-shrink: 0;
+}
+
+.pose-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pose-duration {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 3px 8px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+}
+
+.pose-details {
+  flex: 1;
+  padding: 20px;
+}
+
+.pose-details h3 {
+  margin: 0 0 5px;
+  color: #333;
+}
+
+.pose-sanskrit {
+  color: #777;
+  font-style: italic;
+  margin-bottom: 15px;
+}
+
+.pose-details p {
+  color: #555;
+  margin-bottom: 15px;
+}
+
+.pose-tips {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 3px solid #3a5edf;
+}
+
+.pose-tips h4 {
+  margin: 0 0 5px;
+  color: #3a5edf;
+}
+
+.pose-tips p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* 训练收益 */
+.sequence-benefits {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  margin-bottom: 40px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.sequence-benefits h2 {
+  margin-top: 0;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.benefits-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.benefit-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.benefit-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-radius: 50%;
+  font-size: 0.8rem;
+}
+
+.benefit-text {
+  font-size: 1.1rem;
+  color: #555;
+}
+
+/* 相关推荐 */
+.sequence-related {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  margin-bottom: 40px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.sequence-related h2 {
+  margin-top: 0;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.related-sequences {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 30px;
+}
+
+.related-card {
+  background: #f7f9ff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+}
+
+.related-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.related-card img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.related-card h3 {
+  margin: 15px 15px 10px;
+  font-size: 1.1rem;
+}
+
+.related-card .level-badge {
+  margin: 0 15px 15px;
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+}
+
+.related-card .level-badge.beginner {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.related-card .level-badge.intermediate {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.related-card .btn {
+  margin: 0 15px 15px;
+}
+
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 0.9rem;
+}
+
+/* 返回链接 */
+.back-link {
+  margin-bottom: 30px;
+}
+
+.back-link a {
+  color: #3a5edf;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  font-weight: 500;
+}
+
+.back-link a:hover {
+  text-decoration: underline;
+}
+
+/* 响应式调整 */
+@media (max-width: 992px) {
+  .sequence-header {
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  .sequence-image {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .pose-card {
+    flex-direction: column;
+  }
+
+  .pose-image {
+    width: 100%;
+    height: 200px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .benefits-list,
+  .related-sequences {
+    grid-template-columns: 1fr;
+  }
+}

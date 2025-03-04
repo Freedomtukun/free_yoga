@@ -12,5 +12,10 @@
   },
   "devDependencies": {
     "concurrently": "^8.0.1"
+  },
+  "dependencies": {
+    "@mediapipe/pose": "^0.5.1675469404",
+    "dotenv": "^16.4.7",
+    "mongoose": "^8.11.0"
   }
 }

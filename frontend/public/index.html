@@ -3,11 +3,19 @@
 <head>
   <meta charset="utf-8" />
   <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#4CAF50" />
   <meta name="description" content="智能瑜伽助手 - 使用AI技术改善您的瑜伽练习" />
+  
+  <!-- 屏幕方向锁定 -->
+  <meta name="screen-orientation" content="portrait">
+  <meta name="x5-orientation" content="portrait"> <!-- 腾讯浏览器 -->
+  <meta name="msapplication-orientation" content="portrait"> <!-- 微软应用 -->
+  
+  <!-- PWA 设置 -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
   <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
   
@@ -17,6 +25,7 @@
   
   <!-- 预加载关键资源 -->
   <link rel="preload" href="%PUBLIC_URL%/mediapipe/pose_web.bin" as="fetch" crossorigin="anonymous" />
+  <link rel="preload" href="%PUBLIC_URL%/mediapipe/pose_solution_simd_wasm_bin.wasm" as="fetch" crossorigin="anonymous" />
   
   <!-- SEO 优化 -->
   <meta name="keywords" content="瑜伽,AI,姿势检测,健身,运动,健康,瑜伽教程,瑜伽训练" />
@@ -72,6 +81,44 @@
     
     /* 防止iOS上的双击缩放 */
     * { touch-action: manipulation; }
+    
+    /* 屏幕方向警告样式 */
+    #orientation-warning {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      z-index: 10000;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .warning-icon {
+      margin-bottom: 20px;
+      animation: rotate 1.5s ease-in-out infinite;
+    }
+    
+    .warning-text {
+      font-size: 18px;
+      font-weight: bold;
+      max-width: 300px;
+      line-height: 1.4;
+    }
+    
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      25% { transform: rotate(90deg); }
+      50% { transform: rotate(90deg); }
+      75% { transform: rotate(0deg); }
+      100% { transform: rotate(0deg); }
+    }
   </style>
   
   <!-- 中国 CDN 替代 Google Fonts -->
@@ -86,6 +133,19 @@
     <div class="app-loading-text">智能瑜伽助手加载中...</div>
   </div>
   
+  <!-- 屏幕方向警告 -->
+  <div id="orientation-warning">
+    <div class="warning-icon">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 6V12L16 14" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        <path d="M5.5 17H18.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        <path d="M5.5 7H18.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        <rect x="7" y="4" width="10" height="16" rx="2" stroke="white" stroke-width="2"/>
+      </svg>
+    </div>
+    <div class="warning-text">请旋转设备至竖屏模式以获得最佳体验</div>
+  </div>
+  
   <div id="root"></div>
   
   <!-- 离线支持提示 -->
@@ -94,6 +154,56 @@
   </div>
   
   <script>
+    // 检测设备方向并锁定竖屏
+    function lockOrientation() {
+      try {
+        // 尝试所有可能的方向锁定方法
+        if (screen.orientation && screen.orientation.lock) {
+          screen.orientation.lock('portrait').catch(err => {
+            console.log('无法锁定屏幕方向:', err);
+          });
+        } else if (screen.lockOrientation) {
+          screen.lockOrientation('portrait');
+        } else if (screen.mozLockOrientation) {
+          screen.mozLockOrientation('portrait');
+        } else if (screen.msLockOrientation) {
+          screen.msLockOrientation('portrait');
+        }
+      } catch (e) {
+        console.log('该设备不支持方向锁定');
+      }
+    }
+
+    // 检测和提示屏幕方向
+    function checkOrientation() {
+      // 判断是否在训练页面
+      const isTrainingPage = window.location.pathname.includes('/training') || 
+                            window.location.pathname.includes('/sequence');
+      
+      if (isTrainingPage) {
+        // 尝试锁定屏幕
+        lockOrientation();
+        
+        // 检测当前方向
+        const isLandscape = window.matchMedia("(orientation: landscape)").matches;
+        
+        // 显示/隐藏警告
+        const warning = document.getElementById('orientation-warning');
+        if (warning) {
+          warning.style.display = isLandscape ? 'flex' : 'none';
+        }
+      }
+    }
+    
+    // 监听方向变化
+    window.addEventListener('orientationchange', checkOrientation);
+    window.addEventListener('resize', checkOrientation);
+    
+    // 页面加载时检查方向
+    document.addEventListener('DOMContentLoaded', function() {
+      checkOrientation();
+    });
+    
     // 注册 Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -135,6 +245,29 @@
         e.preventDefault();
       }
     }, { passive: false });
+    
+    // 检测设备性能
+    function detectDevicePerformance() {
+      // 检查设备内存（如果可用）
+      const deviceMemory = navigator.deviceMemory || 4; // 默认假设4GB
+      
+      // 检查处理器核心数
+      const hardwareConcurrency = navigator.hardwareConcurrency || 4;
+      
+      // 将性能信息存储到全局对象
+      window.devicePerformance = {
+        memory: deviceMemory,
+        cores: hardwareConcurrency,
+        isLowEnd: deviceMemory <= 2 || hardwareConcurrency <= 2,
+        isMidRange: (deviceMemory > 2 && deviceMemory <= 4) || (hardwareConcurrency > 2 && hardwareConcurrency <= 4),
+        isHighEnd: deviceMemory > 4 || hardwareConcurrency > 4
+      };
+      
+      console.log('设备性能:', window.devicePerformance);
+    }
+    
+    // 检测设备性能
+    detectDevicePerformance();
   </script>
 </body>
 </html>

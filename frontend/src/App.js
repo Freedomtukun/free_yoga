@@ -1,42 +1,39 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
-import { TrainingProvider } from './contexts/TrainingContext';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Layout/Header';
 import Footer from './components/Layout/Footer';
-import Home from './pages/Home';
+import LandingPage from './pages/LandingPage';
 import SequenceList from './pages/SequenceList';
-import SequenceDetail from './pages/SequenceDetail';
-import SequenceFlow from './components/TrainingModes/SequenceFlow';
-import FreeTraining from './components/TrainingModes/FreeTraining';
+import SequenceDetail from './pages/SequenceDetail'; // 新增导入
 import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import NotFound from './pages/NotFound';
+import SequenceTraining from './components/TrainingModes/SequenceTraining';
+import { AuthProvider } from './contexts/AuthContext';
 import './App.css';
 
 const App = () => {
   return (
     <Router>
-      <TrainingProvider>
+      <AuthProvider>
         <div className="app">
           <Header />
           <main className="main-content">
-            <Switch>
-              <Route exact path="/" component={Home} />
-              <Route exact path="/sequences" component={SequenceList} />
-              <Route exact path="/sequences/:id" component={SequenceDetail} />
-              <Route exact path="/train/sequence/:sequenceId" component={SequenceFlow} />
-              <Route exact path="/train/free" component={FreeTraining} />
-              <Route exact path="/profile" component={Profile} />
-              <Route exact path="/login" component={Login} />
-              <Route exact path="/register" component={Register} />
-              <Route path="/404" component={NotFound} />
-              <Redirect to="/404" />
-            </Switch>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/sequences" element={<SequenceList />} />
+              <Route path="/sequence/:id" element={<SequenceDetail />} /> {/* 新增路由 */}
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/train/sequence/:id" element={<SequenceTraining />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
           </main>
           <Footer />
         </div>
-      </TrainingProvider>
+      </AuthProvider>
     </Router>
   );
 };

@@ -1,0 +1,830 @@
+.training-container {
+  min-height: 100vh;
+  background: #f9fafc;
+  padding: 30px;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+/* 训练说明页面 */
+.training-instructions {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 15px;
+  padding: 40px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.training-instructions h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.instruction-desc {
+  text-align: center;
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 1.1rem;
+}
+
+.instruction-details {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.instruction-item {
+  flex: 1;
+  min-width: 150px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.instruction-icon {
+  font-size: 2rem;
+  margin-right: 15px;
+}
+
+.instruction-text h3 {
+  margin: 0 0 5px;
+  font-size: 1.1rem;
+  color: #555;
+}
+
+.instruction-text p {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #3a5edf;
+}
+
+.instruction-tips {
+  background: #f7f9ff;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 40px;
+}
+
+.instruction-tips h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #3a5edf;
+}
+
+.instruction-tips ul {
+  padding-left: 20px;
+}
+
+.instruction-tips li {
+  margin-bottom: 10px;
+  color: #555;
+}
+
+.instruction-actions {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.btn-lg {
+  padding: 15px 30px;
+  font-size: 1.1rem;
+}
+
+/* 训练会话页面 */
+.training-session {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 60px);
+}
+
+.training-header {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+}
+
+.training-header h2 {
+  margin: 0 0 15px;
+  text-align: center;
+}
+
+.training-progress {
+  margin-bottom: 10px;
+}
+
+.progress-bar {
+  height: 8px;
+  background: #eee;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(to right, #3a5edf, #5f82ff);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  text-align: right;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.pose-container {
+  display: flex;
+  flex: 1;
+  gap: 20px;
+}
+
+/* 摄像头视图容器，适配MediaPipe输出 */
+.camera-view {
+  flex: 3;
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #222;
+  height: 0;
+  padding-bottom: 56.25%; /* 16:9宽高比 */
+}
+
+.camera-view.portrait-mode {
+  padding-bottom: 133.33%; /* 3:4宽高比，更适合移动设备上的姿势检测 */
+}
+
+.camera-view canvas, 
+.camera-view video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* MediaPipe覆盖层样式 */
+.pose-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.camera-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 1.2rem;
+  z-index: 1;
+}
+
+.camera-error {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  z-index: 10;
+  padding: 20px;
+  text-align: center;
+}
+
+.camera-error button {
+  margin-top: 15px;
+  padding: 8px 16px;
+  border: none;
+  background: #3a5edf;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.camera-controls {
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+  z-index: 10;
+  display: flex;
+  gap: 10px;
+}
+
+.camera-btn {
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.camera-btn:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.camera-btn.active {
+  background: #3a5edf;
+}
+
+.pose-reference {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 180px;
+  height: 180px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 3px solid white;
+  background: #f7f9ff;
+  z-index: 5;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.pose-reference img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pose-info {
+  flex: 2;
+  background: white;
+  border-radius: 10px;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  overflow-y: auto;
+}
+
+.pose-header {
+  margin-bottom: 20px;
+}
+
+.pose-header h3 {
+  margin: 0 0 5px;
+  font-size: 1.8rem;
+  color: #333;
+}
+
+.pose-sanskrit {
+  color: #777;
+  font-style: italic;
+}
+
+.pose-timer {
+  margin-bottom: 25px;
+}
+
+.timer-display {
+  font-size: 3rem;
+  font-weight: 700;
+  text-align: center;
+  color: #3a5edf;
+  margin-bottom: 15px;
+}
+
+.timer-controls {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.timer-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 30px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.play-btn {
+  background: #3a5edf;
+  color: white;
+  min-width: 100px;
+}
+
+.play-btn:hover {
+  background: #2a4bcf;
+}
+
+.prev-btn, .next-btn {
+  background: #f1f3f9;
+  color: #555;
+}
+
+.prev-btn:hover, .next-btn:hover {
+  background: #e4e8f5;
+}
+
+.timer-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pose-description {
+  margin-bottom: 20px;
+  color: #555;
+  line-height: 1.6;
+}
+
+/* 姿势反馈组件样式增强 */
+.pose-feedback {
+  background: #f0f8ff;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.pose-feedback.poor {
+  background: #ffebee;
+}
+
+.pose-feedback.average {
+  background: #fff8e1;
+}
+
+.pose-feedback.good {
+  background: #e8f5e9;
+}
+
+.pose-feedback h4 {
+  margin: 0 0 10px;
+  color: #3a5edf;
+  display: flex;
+  align-items: center;
+}
+
+.pose-feedback.poor h4 {
+  color: #d32f2f;
+}
+
+.pose-feedback.average h4 {
+  color: #ff8f00;
+}
+
+.pose-feedback.good h4 {
+  color: #2e7d32;
+}
+
+.feedback-icon {
+  margin-right: 8px;
+  font-size: 1.2rem;
+}
+
+.feedback-content p {
+  margin: 0 0 15px;
+}
+
+.feedback-detail {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.feedback-part {
+  flex: 1;
+  font-weight: 500;
+}
+
+.feedback-status {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.feedback-status.correct {
+  background: #4caf50;
+}
+
+.feedback-status.warning {
+  background: #ff9800;
+}
+
+.feedback-status.error {
+  background: #f44336;
+}
+
+.accuracy-meter {
+  margin-top: 10px;
+}
+
+.accuracy-label {
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+  color: #555;
+  display: flex;
+  justify-content: space-between;
+}
+
+.accuracy-bar {
+  height: 8px;
+  background: #eee;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+
+.accuracy-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+.accuracy-fill.poor {
+  background: linear-gradient(to right, #e53935, #ff5252);
+}
+
+.accuracy-fill.average {
+  background: linear-gradient(to right, #ff8f00, #ffca28);
+}
+
+.accuracy-fill.good {
+  background: linear-gradient(to right, #2e7d32, #4caf50);
+}
+
+.accuracy-value {
+  text-align: right;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.accuracy-value.poor {
+  color: #d32f2f;
+}
+
+.accuracy-value.average {
+  color: #ff8f00;
+}
+
+.accuracy-value.good {
+  color: #2e7d32;
+}
+
+.pose-tips {
+  background: #fff8e1;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 25px;
+  border-left: 4px solid #ffc107;
+}
+
+.pose-tips h4 {
+  margin: 0 0 10px;
+  color: #ff8f00;
+  display: flex;
+  align-items: center;
+}
+
+.pose-tips h4 svg {
+  margin-right: 8px;
+}
+
+.pose-tips p {
+  margin: 0;
+  color: #5d4037;
+}
+
+.exit-btn {
+  align-self: center;
+  padding: 10px 20px;
+  background: none;
+  border: 1px solid #d32f2f;
+  color: #d32f2f;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  margin-top: auto;
+}
+
+.exit-btn:hover {
+  background: rgba(211, 47, 47, 0.1);
+}
+
+/* MediaPipe姿势标记点样式 */
+.landmark-connection {
+  stroke: rgba(255, 255, 255, 0.7);
+  stroke-width: 2px;
+}
+
+.landmark-point {
+  fill: #4caf50;
+  stroke: white;
+  stroke-width: 1px;
+}
+
+.landmark-point.error {
+  fill: #f44336;
+}
+
+.landmark-point.warning {
+  fill: #ff9800;
+}
+
+/* 姿势认证进度样式 */
+.pose-verification {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 20px;
+  padding: 5px 15px;
+  color: white;
+  display: flex;
+  align-items: center;
+  z-index: 5;
+}
+
+.verification-icon {
+  margin-right: 8px;
+}
+
+.verification-progress {
+  width: 30px;
+  height: 30px;
+  position: relative;
+}
+
+.verification-circle {
+  stroke: #4caf50;
+  fill: transparent;
+  stroke-width: 3;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  transition: stroke-dashoffset 0.3s;
+}
+
+.verification-bg {
+  stroke: rgba(255, 255, 255, 0.2);
+  fill: transparent;
+  stroke-width: 3;
+}
+
+/* 手机设备优化 */
+@media (max-width: 992px) {
+  .pose-container {
+    flex-direction: column;
+  }
+  
+  .camera-view {
+    flex: none;
+    margin-bottom: 20px;
+  }
+  
+  .pose-reference {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .pose-info {
+    flex: none;
+  }
+  
+  .instruction-details {
+    flex-direction: column;
+  }
+  
+  .instruction-item {
+    min-width: 100%;
+  }
+  
+  .instruction-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .btn-lg {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .training-container {
+    padding: 10px;
+  }
+  
+  .training-instructions {
+    padding: 20px;
+  }
+  
+  .timer-controls {
+    flex-wrap: wrap;
+  }
+  
+  .timer-btn {
+    flex: 1;
+    min-width: 100px;
+  }
+  
+  .camera-view {
+    padding-bottom: 133.33%; /* 更适合手机屏幕的纵向比例 */
+  }
+  
+  .pose-reference {
+    width: 100px;
+    height: 100px;
+    bottom: 15px;
+    right: 15px;
+  }
+  
+  .pose-verification {
+    top: 10px;
+    right: 10px;
+    padding: 3px 10px;
+  }
+  
+  .verification-progress {
+    width: 20px;
+    height: 20px;
+  }
+  
+  /* 移动设备上的额外控制按钮 */
+  .mobile-controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    justify-content: space-around;
+    padding: 10px;
+    z-index: 100;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .mobile-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: #555;
+  }
+  
+  .mobile-btn-icon {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+  }
+  
+  .mobile-btn.active {
+    color: #3a5edf;
+  }
+}
+
+/* 暗黑模式支持 */
+@media (prefers-color-scheme: dark) {
+  .training-container {
+    background: #121212;
+  }
+  
+  .training-instructions,
+  .training-header,
+  .pose-info {
+    background: #1e1e1e;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+  }
+  
+  .training-instructions h2,
+  .pose-header h3 {
+    color: #f5f5f5;
+  }
+  
+  .instruction-desc {
+    color: #aaa;
+  }
+  
+  .instruction-text h3 {
+    color: #ccc;
+  }
+  
+  .pose-description {
+    color: #bbb;
+  }
+  
+  .instruction-tips {
+    background: #252836;
+  }
+  
+  .instruction-tips li {
+    color: #bbb;
+  }
+  
+  .prev-btn, .next-btn {
+    background: #2c2c2c;
+    color: #ddd;
+  }
+  
+  .prev-btn:hover, .next-btn:hover {
+    background: #3c3c3c;
+  }
+  
+  .pose-feedback {
+    background: #1a2a42;
+  }
+  
+  .pose-feedback.poor {
+    background: #42181b;
+  }
+  
+  .pose-feedback.average {
+    background: #42301a;
+  }
+  
+  .pose-feedback.good {
+    background: #1a331e;
+  }
+  
+  .pose-tips {
+    background: #332b1a;
+    border-left: 4px solid #b08600;
+  }
+  
+  .pose-tips p {
+    color: #d7ccc8;
+  }
+  
+  .accuracy-bar {
+    background: #333;
+  }
+  
+  .progress-bar {
+    background: #333;
+  }
+  
+  .progress-text {
+    color: #aaa;
+  }
+}
+
+/* 添加动画效果 */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.pose-correct-animation {
+  animation: pulse 0.6s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.feedback-appear {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* 辅助功能 */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -1,173 +1,102 @@
-.sequence-flow {
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
+import React, { useState } from 'react';
+import './SequenceFlow.css';
 
-.sequence-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
+const SequenceFlow = ({ sequence }) => {
+  const [currentPoseIndex, setCurrentPoseIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  
+  // 示例序列
+  const demoSequence = {
+    title: "晨间活力流",
+    poses: [
+      { name: "山式", duration: 30, imageUrl: "/api/placeholder/300/200" },
+      { name: "前屈式", duration: 45, imageUrl: "/api/placeholder/300/200" },
+      { name: "战士一式", duration: 60, imageUrl: "/api/placeholder/300/200" },
+      { name: "三角式", duration: 60, imageUrl: "/api/placeholder/300/200" },
+      { name: "休息式", duration: 30, imageUrl: "/api/placeholder/300/200" }
+    ]
+  };
+  
+  const currentSequence = sequence || demoSequence;
+  const currentPose = currentSequence.poses[currentPoseIndex];
+  
+  const nextPose = () => {
+    if (currentPoseIndex < currentSequence.poses.length - 1) {
+      setCurrentPoseIndex(currentPoseIndex + 1);
+    } else {
+      // 序列完成
+      setIsPlaying(false);
+    }
+  };
+  
+  const prevPose = () => {
+    if (currentPoseIndex > 0) {
+      setCurrentPoseIndex(currentPoseIndex - 1);
+    }
+  };
+  
+  const togglePlay = () => {
+    setIsPlaying(!isPlaying);
+  };
 
-.sequence-progress {
-  background-color: #f0f0f0;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-weight: 500;
-}
+  return (
+    <div className="sequence-flow">
+      <h2>{currentSequence.title}</h2>
+      
+      <div className="sequence-progress">
+        <div className="progress-indicator">
+          {currentSequence.poses.map((pose, index) => (
+            <div 
+              key={index} 
+              className={`progress-dot ${index === currentPoseIndex ? 'active' : ''}`}
+              onClick={() => setCurrentPoseIndex(index)}
+            />
+          ))}
+        </div>
+        <div className="progress-text">
+          {currentPoseIndex + 1} / {currentSequence.poses.length}
+        </div>
+      </div>
+      
+      <div className="pose-display">
+        <div className="pose-card">
+          <h3>{currentPose.name}</h3>
+          <div className="pose-image">
+            <img src={currentPose.imageUrl} alt={currentPose.name} />
+          </div>
+          <p>保持 {currentPose.duration} 秒</p>
+        </div>
+        
+        <div className="pose-feedback">
+          <h3>姿势反馈</h3>
+          <p>AI 反馈将在这里显示</p>
+        </div>
+      </div>
+      
+      <div className="sequence-controls">
+        <button 
+          className="btn btn-secondary" 
+          onClick={prevPose}
+          disabled={currentPoseIndex === 0}
+        >
+          上一个
+        </button>
+        <button 
+          className="btn btn-primary" 
+          onClick={togglePlay}
+        >
+          {isPlaying ? "暂停" : "开始"}
+        </button>
+        <button 
+          className="btn btn-secondary" 
+          onClick={nextPose}
+          disabled={currentPoseIndex === currentSequence.poses.length - 1}
+        >
+          下一个
+        </button>
+      </div>
+    </div>
+  );
+};
 
-.current-pose {
-  background-color: #fff;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-}
-
-.pose-description {
-  color: #666;
-  margin-bottom: 15px;
-}
-
-.timer {
-  margin-top: 15px;
-}
-
-.time-remaining {
-  font-size: 24px;
-  font-weight: 600;
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-.progress-bar {
-  width: 100%;
-  height: 10px;
-  background-color: #e0e0e0;
-  border-radius: 5px;
-  overflow: hidden;
-}
-
-.progress {
-  height: 100%;
-  background-color: #4CAF50;
-  border-radius: 5px;
-  transition: width 1s linear;
-}
-
-.pose-analysis {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  margin-bottom: 20px;
-}
-
-.next-pose {
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  padding: 15px;
-  margin-bottom: 20px;
-}
-
-.next-pose h4 {
-  margin-top: 0;
-  color: #555;
-}
-
-.transition-hint {
-  font-style: italic;
-  color: #777;
-}
-
-.btn-skip {
-  background-color: transparent;
-  border: 1px solid #ddd;
-  color: #555;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  align-self: center;
-  transition: all 0.2s;
-}
-
-.btn-skip:hover {
-  background-color: #f5f5f5;
-}
-
-.sequence-summary {
-  background-color: #fff;
-  border-radius: 10px;
-  padding: 30px;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-  max-width: 600px;
-  margin: 40px auto;
-  text-align: center;
-}
-
-.summary-stats {
-  display: flex;
-  justify-content: space-around;
-  margin: 30px 0;
-}
-
-.stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.label {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 5px;
-}
-
-.value {
-  font-size: 24px;
-  font-weight: 600;
-  color: #444;
-}
-
-.feedback-section {
-  text-align: left;
-  margin-bottom: 30px;
-}
-
-.feedback-section ul {
-  padding-left: 20px;
-}
-
-.feedback-section li {
-  margin-bottom: 8px;
-  color: #555;
-}
-
-.btn-primary {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 5px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.btn-primary:hover {
-  background-color: #3e8e41;
-}
-
-.loading, .error {
-  text-align: center;
-  padding: 40px;
-  font-size: 18px;
-  color: #666;
-}
-
-.error {
-  color: #e53935;
-}
+export default SequenceFlow;
